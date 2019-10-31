@@ -28,5 +28,5 @@ const getApiUrl = (url) => {
 }
 
 export {
-	getApiUrl
+	getApiUrl,
 }

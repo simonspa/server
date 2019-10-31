@@ -38,5 +38,5 @@ Vue.use(Vuex)
 
 export {
 	Vue,
-	View
+	View,
 }

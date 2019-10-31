@@ -23,10 +23,10 @@
 (function() {
 	'use strict'
 
-	var BreadCrumbView = OC.Backbone.View.extend({
+	const BreadCrumbView = OC.Backbone.View.extend({
 		tagName: 'span',
 		events: {
-			click: '_onClick'
+			click: '_onClick',
 		},
 		_dirInfo: undefined,
 
@@ -41,7 +41,7 @@
 			this._dirInfo = data.dirInfo || null
 
 			if (this._dirInfo !== null && (this._dirInfo.path !== '/' || this._dirInfo.name !== '')) {
-				var isShared = data.dirInfo && data.dirInfo.shareTypes && data.dirInfo.shareTypes.length > 0
+				const isShared = data.dirInfo && data.dirInfo.shareTypes && data.dirInfo.shareTypes.length > 0
 				this.$el.removeClass('shared icon-public icon-shared')
 				if (isShared) {
 					this.$el.addClass('shared')
@@ -65,18 +65,18 @@
 		_onClick: function(e) {
 			e.preventDefault()
 
-			var fileInfoModel = new OCA.Files.FileInfoModel(this._dirInfo)
-			var self = this
+			const fileInfoModel = new OCA.Files.FileInfoModel(this._dirInfo)
+			const self = this
 			fileInfoModel.on('change', function() {
 				self.render({
-					dirInfo: self._dirInfo
+					dirInfo: self._dirInfo,
 				})
 			})
 			this._shareTab.on('sharesChanged', function(shareModel) {
-				var shareTypes = []
-				var shares = shareModel.getSharesWithCurrentItem()
+				const shareTypes = []
+				const shares = shareModel.getSharesWithCurrentItem()
 
-				for (var i = 0; i < shares.length; i++) {
+				for (let i = 0; i < shares.length; i++) {
 					if (shareTypes.indexOf(shares[i].share_type) === -1) {
 						shareTypes.push(shares[i].share_type)
 					}
@@ -90,11 +90,11 @@
 				self._dirInfo.shareTypes = shareTypes
 
 				self.render({
-					dirInfo: self._dirInfo
+					dirInfo: self._dirInfo,
 				})
 			})
 			OCA.Files.App.fileList.showDetailsView(fileInfoModel, 'sharing')
-		}
+		},
 	})
 
 	OCA.Sharing.ShareBreadCrumbView = BreadCrumbView

@@ -1,4 +1,785 @@
-!function(e){var t={};function i(s){if(t[s])return t[s].exports;var n=t[s]={i:s,l:!1,exports:{}};return e[s].call(n.exports,n,n.exports,i),n.l=!0,n.exports}i.m=e,i.c=t,i.d=function(e,t,s){i.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:s})},i.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},i.t=function(e,t){if(1&t&&(e=i(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var s=Object.create(null);if(i.r(s),Object.defineProperty(s,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var n in e)i.d(s,n,function(t){return e[t]}.bind(null,n));return s},i.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return i.d(t,"a",t),t},i.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},i.p="/js/",i(i.s=0)}([function(e,t,i){"use strict";i.r(t);i(1),i(2),i(3),i(4),i(5),i(6);window.OCA.SystemTags=OCA.SystemTags},function(e,i){OCA.SystemTags||(OCA.SystemTags={}),OCA.SystemTags.App={initFileList:function(e){return this._fileList?this._fileList:(this._fileList=new OCA.SystemTags.FileList(e,{id:"systemtags",fileActions:this._createFileActions(),config:OCA.Files.App.getFilesConfig(),shown:!0}),this._fileList.appName=t("systemtags","Tags"),this._fileList)},removeFileList:function(){this._fileList&&this._fileList.$fileList.empty()},_createFileActions:function(){var e=new OCA.Files.FileActions;return e.registerDefaultActions(),e.merge(OCA.Files.fileActions),this._globalActionsInitialized||(this._onActionsUpdated=_.bind(this._onActionsUpdated,this),OCA.Files.fileActions.on("setDefault.app-systemtags",this._onActionsUpdated),OCA.Files.fileActions.on("registerAction.app-systemtags",this._onActionsUpdated),this._globalActionsInitialized=!0),e.register("dir","Open",OC.PERMISSION_READ,"",(function(e,t){OCA.Files.App.setActiveView("files",{silent:!0}),OCA.Files.App.fileList.changeDirectory(OC.joinPaths(t.$file.attr("data-path"),e),!0,!0)})),e.setDefault("dir","Open"),e},_onActionsUpdated:function(e){this._fileList&&(e.action?this._fileList.fileActions.registerAction(e.action):e.defaultAction&&this._fileList.fileActions.setDefault(e.defaultAction.mime,e.defaultAction.name))},destroy:function(){OCA.Files.fileActions.off("setDefault.app-systemtags",this._onActionsUpdated),OCA.Files.fileActions.off("registerAction.app-systemtags",this._onActionsUpdated),this.removeFileList(),this._fileList=null,delete this._globalActionsInitialized}},$(document).ready((function(){$("#app-content-systemtagsfilter").on("show",(function(e){OCA.SystemTags.App.initFileList($(e.target))})),$("#app-content-systemtagsfilter").on("hide",(function(){OCA.SystemTags.App.removeFileList()}))}))},function(e,i){var s;(s=function(e,t){this.initialize(e,t)}).prototype=_.extend({},OCA.Files.FileList.prototype,{id:"systemtagsfilter",appName:t("systemtags","Tagged files"),_systemTagIds:[],_lastUsedTags:[],_clientSideSort:!0,_allowSelection:!1,_filterField:null,initialize:function(e,t){if(OCA.Files.FileList.prototype.initialize.apply(this,arguments),!this.initialized){t&&t.systemTagIds&&(this._systemTagIds=t.systemTagIds),OC.Plugins.attach("OCA.SystemTags.FileList",this);var i=this.$el.find("#controls").empty();_.defer(_.bind(this._getLastUsedTags,this)),this._initFilterField(i)}},destroy:function(){this.$filterField.remove(),OCA.Files.FileList.prototype.destroy.apply(this,arguments)},_getLastUsedTags:function(){var e=this;$.ajax({type:"GET",url:OC.generateUrl("/apps/systemtags/lastused"),success:function(t){e._lastUsedTags=t}})},_initFilterField:function(e){var i=this;return this.$filterField=$('<input type="hidden" name="tags"/>'),e.append(this.$filterField),this.$filterField.select2({placeholder:t("systemtags","Select tags to filter by"),allowClear:!1,multiple:!0,toggleSelect:!0,separator:",",query:_.bind(this._queryTagsAutocomplete,this),id:function(e){return e.id},initSelection:function(e,t){var i=$(e).val().trim();if(i){var s=i.split(","),n=[];OC.SystemTags.collection.fetch({success:function(){_.each(s,(function(e){var t=OC.SystemTags.collection.get(e);_.isUndefined(t)||n.push(t.toJSON())})),t(n)}})}else t([])},formatResult:function(e){return OC.SystemTags.getDescriptiveTag(e)},formatSelection:function(e){return OC.SystemTags.getDescriptiveTag(e)[0].outerHTML},sortResults:function(e){return e.sort((function(e,t){var s=i._lastUsedTags.indexOf(e.id),n=i._lastUsedTags.indexOf(t.id);return s!==n?-1===n?-1:-1===s?1:s<n?-1:1:OC.Util.naturalSortCompare(e.name,t.name)})),e},escapeMarkup:function(e){return e},formatNoMatches:function(){return t("systemtags","No tags found")}}),this.$filterField.on("change",_.bind(this._onTagsChanged,this)),this.$filterField},_queryTagsAutocomplete:function(e){OC.SystemTags.collection.fetch({success:function(){var t=OC.SystemTags.collection.filterByName(e.term);e.callback({results:_.invoke(t,"toJSON")})}})},_onUrlChanged:function(e){if(e.dir){var t=_.filter(e.dir.split("/"),(function(e){return""!==e.trim()}));this.$filterField.select2("val",t||[]),this._systemTagIds=t,this.reload()}},_onTagsChanged:function(e){var t=$(e.target).val().trim();this._systemTagIds=""!==t?t.split(","):[],this.$el.trigger($.Event("changeDirectory",{dir:this._systemTagIds.join("/")})),this.reload()},updateEmptyContent:function(){var e=this.getCurrentDirectory();"/"===e?(this._systemTagIds.length?this.$el.find("#emptycontent").html('<div class="icon-systemtags"></div><h2>'+t("systemtags","No files found for the selected tags")+"</h2>"):this.$el.find("#emptycontent").html('<div class="icon-systemtags"></div><h2>'+t("systemtags","Please select tags to filter by")+"</h2>"),this.$el.find("#emptycontent").toggleClass("hidden",!this.isEmpty),this.$el.find("#filestable thead th").toggleClass("hidden",this.isEmpty)):OCA.Files.FileList.prototype.updateEmptyContent.apply(this,arguments)},getDirectoryPermissions:function(){return OC.PERMISSION_READ|OC.PERMISSION_DELETE},updateStorageStatistics:function(){},reload:function(){if(this._setCurrentDir("/",!1),!this._systemTagIds.length)return this.updateEmptyContent(),this.setFiles([]),$.Deferred().resolve();this._selectedFiles={},this._selectionSummary.clear(),this._currentFileModel&&this._currentFileModel.off(),this._currentFileModel=null,this.$el.find(".select-all").prop("checked",!1),this.showMask(),this._reloadCall=this.filesClient.getFilteredFiles({systemTagIds:this._systemTagIds},{properties:this._getWebdavProperties()}),this._detailsView&&this._updateDetailsView(null);var e=this.reloadCallback.bind(this);return this._reloadCall.then(e,e)},reloadCallback:function(e,t){return t&&t.unshift({}),OCA.Files.FileList.prototype.reloadCallback.call(this,e,t)}}),OCA.SystemTags.FileList=s},function(e,t){OCA.SystemTags=_.extend({},OCA.SystemTags),OCA.SystemTags||(OCA.SystemTags={}),OCA.SystemTags.FilesPlugin={ignoreLists:["trashbin","files.public"],attach:function(e){if(!(this.ignoreLists.indexOf(e.id)>=0)){var t=new OCA.SystemTags.SystemTagsInfoView;e.registerDetailView(t),_.each(e.getRegisteredDetailViews(),(function(e){if(e instanceof OCA.Files.MainFileInfoDetailView){var i=new OCA.SystemTags.SystemTagsInfoViewToggleView({systemTagsInfoView:t});i.render(),i.listenTo(e,"pre-render",(function(){i.$el.detach()})),i.listenTo(e,"post-render",(function(){e.$el.find(".file-details").append(i.$el)}))}}))}}},OC.Plugins.register("OCA.Files.FileList",OCA.SystemTags.FilesPlugin)},function(e,t){!function(e){function t(e){var t=e.toJSON();return OC.isUserAdmin()||t.canAssign||(t.locked=!0),t}var i=e.Files.DetailFileInfoView.extend({_rendered:!1,className:"systemTagsInfoView",name:"systemTags",_inputView:null,initialize:function(e){var i=this;e=e||{},this._inputView=new OC.SystemTags.SystemTagsInputField({multiple:!0,allowActions:!0,allowCreate:!0,isAdmin:OC.isUserAdmin(),initSelection:function(e,s){s(i.selectedTagsCollection.map(t))}}),this.selectedTagsCollection=new OC.SystemTags.SystemTagsMappingCollection([],{objectType:"files"}),this._inputView.collection.on("change:name",this._onTagRenamedGlobally,this),this._inputView.collection.on("remove",this._onTagDeletedGlobally,this),this._inputView.on("select",this._onSelectTag,this),this._inputView.on("deselect",this._onDeselectTag,this)},_onSelectTag:function(e){this.selectedTagsCollection.create(e.toJSON())},_onDeselectTag:function(e){this.selectedTagsCollection.get(e).destroy()},_onTagRenamedGlobally:function(e){var t=this.selectedTagsCollection.get(e.id);t&&t.set(e.toJSON())},_onTagDeletedGlobally:function(e){this.selectedTagsCollection.remove(e)},setFileInfo:function(e){var i=this;this._rendered||this.render(),e&&(this.selectedTagsCollection.setObjectId(e.id),this.selectedTagsCollection.fetch({success:function(e){e.fetched=!0;var s=e.map(t);i._inputView.setData(s),i.show()}})),this.hide()},render:function(){this.$el.append(this._inputView.$el),this._inputView.render()},isVisible:function(){return!this.$el.hasClass("hidden")},show:function(){this.$el.removeClass("hidden")},hide:function(){this.$el.addClass("hidden")},openDropdown:function(){this.$el.find(".systemTagsInputField").select2("open")},remove:function(){this._inputView.remove()}});e.SystemTags.SystemTagsInfoView=i}(OCA)},function(e,i){
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "/js/";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = "./apps/systemtags/src/systemtags.js");
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./apps/systemtags/src/app.js":
+/*!************************************!*\
+  !*** ./apps/systemtags/src/app.js ***!
+  \************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/*
+ * Copyright (c) 2015 Vincent Petry <pvince81@owncloud.com>
+ *
+ * This file is licensed under the Affero General Public License version 3
+ * or later.
+ *
+ * See the COPYING-README file.
+ *
+ */
+(function () {
+  if (!OCA.SystemTags) {
+    /**
+     * @namespace
+     */
+    OCA.SystemTags = {};
+  }
+
+  OCA.SystemTags.App = {
+    initFileList: function initFileList($el) {
+      if (this._fileList) {
+        return this._fileList;
+      }
+
+      this._fileList = new OCA.SystemTags.FileList($el, {
+        id: 'systemtags',
+        fileActions: this._createFileActions(),
+        config: OCA.Files.App.getFilesConfig(),
+        // The file list is created when a "show" event is handled,
+        // so it should be marked as "shown" like it would have been
+        // done if handling the event with the file list already
+        // created.
+        shown: true
+      });
+      this._fileList.appName = t('systemtags', 'Tags');
+      return this._fileList;
+    },
+    removeFileList: function removeFileList() {
+      if (this._fileList) {
+        this._fileList.$fileList.empty();
+      }
+    },
+    _createFileActions: function _createFileActions() {
+      // inherit file actions from the files app
+      var fileActions = new OCA.Files.FileActions(); // note: not merging the legacy actions because legacy apps are not
+      // compatible with the sharing overview and need to be adapted first
+
+      fileActions.registerDefaultActions();
+      fileActions.merge(OCA.Files.fileActions);
+
+      if (!this._globalActionsInitialized) {
+        // in case actions are registered later
+        this._onActionsUpdated = _.bind(this._onActionsUpdated, this);
+        OCA.Files.fileActions.on('setDefault.app-systemtags', this._onActionsUpdated);
+        OCA.Files.fileActions.on('registerAction.app-systemtags', this._onActionsUpdated);
+        this._globalActionsInitialized = true;
+      } // when the user clicks on a folder, redirect to the corresponding
+      // folder in the files app instead of opening it directly
+
+
+      fileActions.register('dir', 'Open', OC.PERMISSION_READ, '', function (filename, context) {
+        OCA.Files.App.setActiveView('files', {
+          silent: true
+        });
+        OCA.Files.App.fileList.changeDirectory(OC.joinPaths(context.$file.attr('data-path'), filename), true, true);
+      });
+      fileActions.setDefault('dir', 'Open');
+      return fileActions;
+    },
+    _onActionsUpdated: function _onActionsUpdated(ev) {
+      if (!this._fileList) {
+        return;
+      }
+
+      if (ev.action) {
+        this._fileList.fileActions.registerAction(ev.action);
+      } else if (ev.defaultAction) {
+        this._fileList.fileActions.setDefault(ev.defaultAction.mime, ev.defaultAction.name);
+      }
+    },
+
+    /**
+     * Destroy the app
+     */
+    destroy: function destroy() {
+      OCA.Files.fileActions.off('setDefault.app-systemtags', this._onActionsUpdated);
+      OCA.Files.fileActions.off('registerAction.app-systemtags', this._onActionsUpdated);
+      this.removeFileList();
+      this._fileList = null;
+      delete this._globalActionsInitialized;
+    }
+  };
+})();
+
+$(document).ready(function () {
+  $('#app-content-systemtagsfilter').on('show', function (e) {
+    OCA.SystemTags.App.initFileList($(e.target));
+  });
+  $('#app-content-systemtagsfilter').on('hide', function () {
+    OCA.SystemTags.App.removeFileList();
+  });
+});
+
+/***/ }),
+
+/***/ "./apps/systemtags/src/css/systemtagsfilelist.scss":
+/*!*********************************************************!*\
+  !*** ./apps/systemtags/src/css/systemtagsfilelist.scss ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader/dist/cjs.js!../../../../node_modules/sass-loader/dist/cjs.js!./systemtagsfilelist.scss */ "./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./apps/systemtags/src/css/systemtagsfilelist.scss");
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(/*! ../../../../node_modules/vue-style-loader/lib/addStylesClient.js */ "./node_modules/vue-style-loader/lib/addStylesClient.js").default
+var update = add("4b13cbab", content, false, {});
+// Hot Module Replacement
+if(false) {}
+
+/***/ }),
+
+/***/ "./apps/systemtags/src/filesplugin.js":
+/*!********************************************!*\
+  !*** ./apps/systemtags/src/filesplugin.js ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/*
+ * Copyright (c) 2015 Vincent Petry <pvince81@owncloud.com>
+ *
+ * This file is licensed under the Affero General Public License version 3
+ * or later.
+ *
+ * See the COPYING-README file.
+ *
+ */
+(function () {
+  OCA.SystemTags = _.extend({}, OCA.SystemTags);
+
+  if (!OCA.SystemTags) {
+    /**
+     * @namespace
+     */
+    OCA.SystemTags = {};
+  }
+  /**
+   * @namespace
+   */
+
+
+  OCA.SystemTags.FilesPlugin = {
+    ignoreLists: ['trashbin', 'files.public'],
+    attach: function attach(fileList) {
+      if (this.ignoreLists.indexOf(fileList.id) >= 0) {
+        return;
+      }
+
+      var systemTagsInfoView = new OCA.SystemTags.SystemTagsInfoView();
+      fileList.registerDetailView(systemTagsInfoView);
+
+      _.each(fileList.getRegisteredDetailViews(), function (detailView) {
+        if (detailView instanceof OCA.Files.MainFileInfoDetailView) {
+          var systemTagsInfoViewToggleView = new OCA.SystemTags.SystemTagsInfoViewToggleView({
+            systemTagsInfoView: systemTagsInfoView
+          });
+          systemTagsInfoViewToggleView.render(); // The toggle view element is detached before the
+          // MainFileInfoDetailView is rendered to prevent its event
+          // handlers from being removed.
+
+          systemTagsInfoViewToggleView.listenTo(detailView, 'pre-render', function () {
+            systemTagsInfoViewToggleView.$el.detach();
+          });
+          systemTagsInfoViewToggleView.listenTo(detailView, 'post-render', function () {
+            detailView.$el.find('.file-details').append(systemTagsInfoViewToggleView.$el);
+          });
+        }
+      });
+    }
+  };
+})();
+
+OC.Plugins.register('OCA.Files.FileList', OCA.SystemTags.FilesPlugin);
+
+/***/ }),
+
+/***/ "./apps/systemtags/src/systemtags.js":
+/*!*******************************************!*\
+  !*** ./apps/systemtags/src/systemtags.js ***!
+  \*******************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./app */ "./apps/systemtags/src/app.js");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_app__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _systemtagsfilelist__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./systemtagsfilelist */ "./apps/systemtags/src/systemtagsfilelist.js");
+/* harmony import */ var _systemtagsfilelist__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_systemtagsfilelist__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _filesplugin__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./filesplugin */ "./apps/systemtags/src/filesplugin.js");
+/* harmony import */ var _filesplugin__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_filesplugin__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _systemtagsinfoview__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./systemtagsinfoview */ "./apps/systemtags/src/systemtagsinfoview.js");
+/* harmony import */ var _systemtagsinfoview__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_systemtagsinfoview__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _systemtagsinfoviewtoggleview__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./systemtagsinfoviewtoggleview */ "./apps/systemtags/src/systemtagsinfoviewtoggleview.js");
+/* harmony import */ var _systemtagsinfoviewtoggleview__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_systemtagsinfoviewtoggleview__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _css_systemtagsfilelist_scss__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./css/systemtagsfilelist.scss */ "./apps/systemtags/src/css/systemtagsfilelist.scss");
+/* harmony import */ var _css_systemtagsfilelist_scss__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_css_systemtagsfilelist_scss__WEBPACK_IMPORTED_MODULE_5__);
+
+
+
+
+
+
+window.OCA.SystemTags = OCA.SystemTags;
+
+/***/ }),
+
+/***/ "./apps/systemtags/src/systemtagsfilelist.js":
+/*!***************************************************!*\
+  !*** ./apps/systemtags/src/systemtagsfilelist.js ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/*
+ * Copyright (c) 2016 Vincent Petry <pvince81@owncloud.com>
+ *
+ * This file is licensed under the Affero General Public License version 3
+ * or later.
+ *
+ * See the COPYING-README file.
+ *
+ */
+(function () {
+  /**
+   * @class OCA.SystemTags.FileList
+   * @augments OCA.Files.FileList
+   *
+   * @classdesc SystemTags file list.
+   * Contains a list of files filtered by system tags.
+   *
+   * @param {Object} $el container element with existing markup for the #controls and a table
+   * @param {Array} [options] map of options, see other parameters
+   * @param {Array.<string>} [options.systemTagIds] array of system tag ids to
+   * filter by
+   */
+  var FileList = function FileList($el, options) {
+    this.initialize($el, options);
+  };
+
+  FileList.prototype = _.extend({}, OCA.Files.FileList.prototype,
+  /** @lends OCA.SystemTags.FileList.prototype */
+  {
+    id: 'systemtagsfilter',
+    appName: t('systemtags', 'Tagged files'),
+
+    /**
+     * Array of system tag ids to filter by
+     *
+     * @type Array.<string>
+     */
+    _systemTagIds: [],
+    _lastUsedTags: [],
+    _clientSideSort: true,
+    _allowSelection: false,
+    _filterField: null,
+
+    /**
+     * @private
+     * @param {Object} $el container element
+     * @param {Object} [options] map of options, see other parameters
+     */
+    initialize: function initialize($el, options) {
+      OCA.Files.FileList.prototype.initialize.apply(this, arguments);
+
+      if (this.initialized) {
+        return;
+      }
+
+      if (options && options.systemTagIds) {
+        this._systemTagIds = options.systemTagIds;
+      }
+
+      OC.Plugins.attach('OCA.SystemTags.FileList', this);
+      var $controls = this.$el.find('#controls').empty();
+
+      _.defer(_.bind(this._getLastUsedTags, this));
+
+      this._initFilterField($controls);
+    },
+    destroy: function destroy() {
+      this.$filterField.remove();
+      OCA.Files.FileList.prototype.destroy.apply(this, arguments);
+    },
+    _getLastUsedTags: function _getLastUsedTags() {
+      var self = this;
+      $.ajax({
+        type: 'GET',
+        url: OC.generateUrl('/apps/systemtags/lastused'),
+        success: function success(response) {
+          self._lastUsedTags = response;
+        }
+      });
+    },
+    _initFilterField: function _initFilterField($container) {
+      var self = this;
+      this.$filterField = $('<input type="hidden" name="tags"/>');
+      $container.append(this.$filterField);
+      this.$filterField.select2({
+        placeholder: t('systemtags', 'Select tags to filter by'),
+        allowClear: false,
+        multiple: true,
+        toggleSelect: true,
+        separator: ',',
+        query: _.bind(this._queryTagsAutocomplete, this),
+        id: function id(tag) {
+          return tag.id;
+        },
+        initSelection: function initSelection(element, callback) {
+          var val = $(element).val().trim();
+
+          if (val) {
+            var tagIds = val.split(',');
+            var tags = [];
+            OC.SystemTags.collection.fetch({
+              success: function success() {
+                _.each(tagIds, function (tagId) {
+                  var tag = OC.SystemTags.collection.get(tagId);
+
+                  if (!_.isUndefined(tag)) {
+                    tags.push(tag.toJSON());
+                  }
+                });
+
+                callback(tags);
+              }
+            });
+          } else {
+            // eslint-disable-next-line standard/no-callback-literal
+            callback([]);
+          }
+        },
+        formatResult: function formatResult(tag) {
+          return OC.SystemTags.getDescriptiveTag(tag);
+        },
+        formatSelection: function formatSelection(tag) {
+          return OC.SystemTags.getDescriptiveTag(tag)[0].outerHTML;
+        },
+        sortResults: function sortResults(results) {
+          results.sort(function (a, b) {
+            var aLastUsed = self._lastUsedTags.indexOf(a.id);
+
+            var bLastUsed = self._lastUsedTags.indexOf(b.id);
+
+            if (aLastUsed !== bLastUsed) {
+              if (bLastUsed === -1) {
+                return -1;
+              }
+
+              if (aLastUsed === -1) {
+                return 1;
+              }
+
+              return aLastUsed < bLastUsed ? -1 : 1;
+            } // Both not found
+
+
+            return OC.Util.naturalSortCompare(a.name, b.name);
+          });
+          return results;
+        },
+        escapeMarkup: function escapeMarkup(m) {
+          // prevent double markup escape
+          return m;
+        },
+        formatNoMatches: function formatNoMatches() {
+          return t('systemtags', 'No tags found');
+        }
+      });
+      this.$filterField.on('change', _.bind(this._onTagsChanged, this));
+      return this.$filterField;
+    },
+
+    /**
+     * Autocomplete function for dropdown results
+     *
+     * @param {Object} query select2 query object
+     */
+    _queryTagsAutocomplete: function _queryTagsAutocomplete(query) {
+      OC.SystemTags.collection.fetch({
+        success: function success() {
+          var results = OC.SystemTags.collection.filterByName(query.term);
+          query.callback({
+            results: _.invoke(results, 'toJSON')
+          });
+        }
+      });
+    },
+
+    /**
+     * Event handler for when the URL changed
+     *
+     * @param {Event} e the urlchanged event
+     */
+    _onUrlChanged: function _onUrlChanged(e) {
+      if (e.dir) {
+        var tags = _.filter(e.dir.split('/'), function (val) {
+          return val.trim() !== '';
+        });
+
+        this.$filterField.select2('val', tags || []);
+        this._systemTagIds = tags;
+        this.reload();
+      }
+    },
+    _onTagsChanged: function _onTagsChanged(ev) {
+      var val = $(ev.target).val().trim();
+
+      if (val !== '') {
+        this._systemTagIds = val.split(',');
+      } else {
+        this._systemTagIds = [];
+      }
+
+      this.$el.trigger($.Event('changeDirectory', {
+        dir: this._systemTagIds.join('/')
+      }));
+      this.reload();
+    },
+    updateEmptyContent: function updateEmptyContent() {
+      var dir = this.getCurrentDirectory();
+
+      if (dir === '/') {
+        // root has special permissions
+        if (!this._systemTagIds.length) {
+          // no tags selected
+          this.$el.find('#emptycontent').html('<div class="icon-systemtags"></div>' + '<h2>' + t('systemtags', 'Please select tags to filter by') + '</h2>');
+        } else {
+          // tags selected but no results
+          this.$el.find('#emptycontent').html('<div class="icon-systemtags"></div>' + '<h2>' + t('systemtags', 'No files found for the selected tags') + '</h2>');
+        }
+
+        this.$el.find('#emptycontent').toggleClass('hidden', !this.isEmpty);
+        this.$el.find('#filestable thead th').toggleClass('hidden', this.isEmpty);
+      } else {
+        OCA.Files.FileList.prototype.updateEmptyContent.apply(this, arguments);
+      }
+    },
+    getDirectoryPermissions: function getDirectoryPermissions() {
+      return OC.PERMISSION_READ | OC.PERMISSION_DELETE;
+    },
+    updateStorageStatistics: function updateStorageStatistics() {// no op because it doesn't have
+      // storage info like free space / used space
+    },
+    reload: function reload() {
+      // there is only root
+      this._setCurrentDir('/', false);
+
+      if (!this._systemTagIds.length) {
+        // don't reload
+        this.updateEmptyContent();
+        this.setFiles([]);
+        return $.Deferred().resolve();
+      }
+
+      this._selectedFiles = {};
+
+      this._selectionSummary.clear();
+
+      if (this._currentFileModel) {
+        this._currentFileModel.off();
+      }
+
+      this._currentFileModel = null;
+      this.$el.find('.select-all').prop('checked', false);
+      this.showMask();
+      this._reloadCall = this.filesClient.getFilteredFiles({
+        systemTagIds: this._systemTagIds
+      }, {
+        properties: this._getWebdavProperties()
+      });
+
+      if (this._detailsView) {
+        // close sidebar
+        this._updateDetailsView(null);
+      }
+
+      var callBack = this.reloadCallback.bind(this);
+      return this._reloadCall.then(callBack, callBack);
+    },
+    reloadCallback: function reloadCallback(status, result) {
+      if (result) {
+        // prepend empty dir info because original handler
+        result.unshift({});
+      }
+
+      return OCA.Files.FileList.prototype.reloadCallback.call(this, status, result);
+    }
+  });
+  OCA.SystemTags.FileList = FileList;
+})();
+
+/***/ }),
+
+/***/ "./apps/systemtags/src/systemtagsinfoview.js":
+/*!***************************************************!*\
+  !*** ./apps/systemtags/src/systemtagsinfoview.js ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/*
+ * Copyright (c) 2015
+ *
+ * This file is licensed under the Affero General Public License version 3
+ * or later.
+ *
+ * See the COPYING-README file.
+ *
+ */
+(function (OCA) {
+  function modelToSelection(model) {
+    var data = model.toJSON();
+
+    if (!OC.isUserAdmin() && !data.canAssign) {
+      data.locked = true;
+    }
+
+    return data;
+  }
+  /**
+   * @class OCA.SystemTags.SystemTagsInfoView
+   * @classdesc
+   *
+   * Displays a file's system tags
+   *
+   */
+
+
+  var SystemTagsInfoView = OCA.Files.DetailFileInfoView.extend(
+  /** @lends OCA.SystemTags.SystemTagsInfoView.prototype */
+  {
+    _rendered: false,
+    className: 'systemTagsInfoView',
+    name: 'systemTags',
+
+    /**
+     * @type OC.SystemTags.SystemTagsInputField
+     */
+    _inputView: null,
+    initialize: function initialize(options) {
+      var self = this;
+      options = options || {};
+      this._inputView = new OC.SystemTags.SystemTagsInputField({
+        multiple: true,
+        allowActions: true,
+        allowCreate: true,
+        isAdmin: OC.isUserAdmin(),
+        initSelection: function initSelection(element, callback) {
+          callback(self.selectedTagsCollection.map(modelToSelection));
+        }
+      });
+      this.selectedTagsCollection = new OC.SystemTags.SystemTagsMappingCollection([], {
+        objectType: 'files'
+      });
+
+      this._inputView.collection.on('change:name', this._onTagRenamedGlobally, this);
+
+      this._inputView.collection.on('remove', this._onTagDeletedGlobally, this);
+
+      this._inputView.on('select', this._onSelectTag, this);
+
+      this._inputView.on('deselect', this._onDeselectTag, this);
+    },
+
+    /**
+     * Event handler whenever a tag was selected
+     * @param {Object} tag the tag to create
+     */
+    _onSelectTag: function _onSelectTag(tag) {
+      // create a mapping entry for this tag
+      this.selectedTagsCollection.create(tag.toJSON());
+    },
+
+    /**
+     * Event handler whenever a tag gets deselected.
+     * Removes the selected tag from the mapping collection.
+     *
+     * @param {string} tagId tag id
+     */
+    _onDeselectTag: function _onDeselectTag(tagId) {
+      this.selectedTagsCollection.get(tagId).destroy();
+    },
+
+    /**
+     * Event handler whenever a tag was renamed globally.
+     *
+     * This will automatically adjust the tag mapping collection to
+     * container the new name.
+     *
+     * @param {OC.Backbone.Model} changedTag tag model that has changed
+     */
+    _onTagRenamedGlobally: function _onTagRenamedGlobally(changedTag) {
+      // also rename it in the selection, if applicable
+      var selectedTagMapping = this.selectedTagsCollection.get(changedTag.id);
+
+      if (selectedTagMapping) {
+        selectedTagMapping.set(changedTag.toJSON());
+      }
+    },
+
+    /**
+     * Event handler whenever a tag was deleted globally.
+     *
+     * This will automatically adjust the tag mapping collection to
+     * container the new name.
+     *
+     * @param {OC.Backbone.Model} tagId tag model that has changed
+     */
+    _onTagDeletedGlobally: function _onTagDeletedGlobally(tagId) {
+      // also rename it in the selection, if applicable
+      this.selectedTagsCollection.remove(tagId);
+    },
+    setFileInfo: function setFileInfo(fileInfo) {
+      var self = this;
+
+      if (!this._rendered) {
+        this.render();
+      }
+
+      if (fileInfo) {
+        this.selectedTagsCollection.setObjectId(fileInfo.id);
+        this.selectedTagsCollection.fetch({
+          success: function success(collection) {
+            collection.fetched = true;
+            var appliedTags = collection.map(modelToSelection);
+
+            self._inputView.setData(appliedTags);
+
+            self.show();
+          }
+        });
+      }
+
+      this.hide();
+    },
+
+    /**
+     * Renders this details view
+     */
+    render: function render() {
+      this.$el.append(this._inputView.$el);
+
+      this._inputView.render();
+    },
+    isVisible: function isVisible() {
+      return !this.$el.hasClass('hidden');
+    },
+    show: function show() {
+      this.$el.removeClass('hidden');
+    },
+    hide: function hide() {
+      this.$el.addClass('hidden');
+    },
+    openDropdown: function openDropdown() {
+      this.$el.find('.systemTagsInputField').select2('open');
+    },
+    remove: function remove() {
+      this._inputView.remove();
+    }
+  });
+  OCA.SystemTags.SystemTagsInfoView = SystemTagsInfoView;
+})(OCA);
+
+/***/ }),
+
+/***/ "./apps/systemtags/src/systemtagsinfoviewtoggleview.js":
+/*!*************************************************************!*\
+  !*** ./apps/systemtags/src/systemtagsinfoviewtoggleview.js ***!
+  \*************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
 /**
  *
  * @copyright Copyright (c) 2017, Daniel Calviño Sánchez (danxuliu@gmail.com)
@@ -19,5 +800,470 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-!function(e){var i=OC.Backbone.View.extend({tagName:"span",className:"tag-label",events:{click:"click"},_systemTagsInfoView:null,template:function(e){return'<span class="icon icon-tag"/>'+t("systemtags","Tags")},initialize:function(e){if(e=e||{},this._systemTagsInfoView=e.systemTagsInfoView,!this._systemTagsInfoView)throw new Error('Missing required parameter "systemTagsInfoView"')},click:function(){this._systemTagsInfoView.isVisible()?this._systemTagsInfoView.hide():(this._systemTagsInfoView.show(),this._systemTagsInfoView.openDropdown())},render:function(){return this.$el.html(this.template()),this}});e.SystemTags.SystemTagsInfoViewToggleView=i}(OCA)},function(e,t,i){var s=i(7);"string"==typeof s&&(s=[[e.i,s,""]]),s.locals&&(e.exports=s.locals);(0,i(9).default)("4b13cbab",s,!0,{})},function(e,t,i){(e.exports=i(8)(!1)).push([e.i,"#app-content-systemtagsfilter .select2-container{width:30%;margin-left:10px}#app-sidebar .mainFileInfoView .tag-label{cursor:pointer;padding:13px}#app-sidebar .mainFileInfoView .icon-tag{opacity:.5;vertical-align:middle}\n",""])},function(e,t,i){"use strict";e.exports=function(e){var t=[];return t.toString=function(){return this.map((function(t){var i=function(e,t){var i=e[1]||"",s=e[3];if(!s)return i;if(t&&"function"==typeof btoa){var n=(a=s,l=btoa(unescape(encodeURIComponent(JSON.stringify(a)))),r="sourceMappingURL=data:application/json;charset=utf-8;base64,".concat(l),"/*# ".concat(r," */")),o=s.sources.map((function(e){return"/*# sourceURL=".concat(s.sourceRoot).concat(e," */")}));return[i].concat(o).concat([n]).join("\n")}var a,l,r;return[i].join("\n")}(t,e);return t[2]?"@media ".concat(t[2],"{").concat(i,"}"):i})).join("")},t.i=function(e,i){"string"==typeof e&&(e=[[null,e,""]]);for(var s={},n=0;n<this.length;n++){var o=this[n][0];null!=o&&(s[o]=!0)}for(var a=0;a<e.length;a++){var l=e[a];null!=l[0]&&s[l[0]]||(i&&!l[2]?l[2]=i:i&&(l[2]="(".concat(l[2],") and (").concat(i,")")),t.push(l))}},t}},function(e,t,i){"use strict";function s(e,t){for(var i=[],s={},n=0;n<t.length;n++){var o=t[n],a=o[0],l={id:e+":"+n,css:o[1],media:o[2],sourceMap:o[3]};s[a]?s[a].parts.push(l):i.push(s[a]={id:a,parts:[l]})}return i}i.r(t),i.d(t,"default",(function(){return p}));var n="undefined"!=typeof document;if("undefined"!=typeof DEBUG&&DEBUG&&!n)throw new Error("vue-style-loader cannot be used in a non-browser environment. Use { target: 'node' } in your Webpack config to indicate a server-rendering environment.");var o={},a=n&&(document.head||document.getElementsByTagName("head")[0]),l=null,r=0,c=!1,d=function(){},u=null,f="data-vue-ssr-id",h="undefined"!=typeof navigator&&/msie [6-9]\b/.test(navigator.userAgent.toLowerCase());function p(e,t,i,n){c=i,u=n||{};var a=s(e,t);return g(a),function(t){for(var i=[],n=0;n<a.length;n++){var l=a[n];(r=o[l.id]).refs--,i.push(r)}t?g(a=s(e,t)):a=[];for(n=0;n<i.length;n++){var r;if(0===(r=i[n]).refs){for(var c=0;c<r.parts.length;c++)r.parts[c]();delete o[r.id]}}}}function g(e){for(var t=0;t<e.length;t++){var i=e[t],s=o[i.id];if(s){s.refs++;for(var n=0;n<s.parts.length;n++)s.parts[n](i.parts[n]);for(;n<i.parts.length;n++)s.parts.push(y(i.parts[n]));s.parts.length>i.parts.length&&(s.parts.length=i.parts.length)}else{var a=[];for(n=0;n<i.parts.length;n++)a.push(y(i.parts[n]));o[i.id]={id:i.id,refs:1,parts:a}}}}function m(){var e=document.createElement("style");return e.type="text/css",a.appendChild(e),e}function y(e){var t,i,s=document.querySelector("style["+f+'~="'+e.id+'"]');if(s){if(c)return d;s.parentNode.removeChild(s)}if(h){var n=r++;s=l||(l=m()),t=C.bind(null,s,n,!1),i=C.bind(null,s,n,!0)}else s=m(),t=v.bind(null,s),i=function(){s.parentNode.removeChild(s)};return t(e),function(s){if(s){if(s.css===e.css&&s.media===e.media&&s.sourceMap===e.sourceMap)return;t(e=s)}else i()}}var _,T=(_=[],function(e,t){return _[e]=t,_.filter(Boolean).join("\n")});function C(e,t,i,s){var n=i?"":s.css;if(e.styleSheet)e.styleSheet.cssText=T(t,n);else{var o=document.createTextNode(n),a=e.childNodes;a[t]&&e.removeChild(a[t]),a.length?e.insertBefore(o,a[t]):e.appendChild(o)}}function v(e,t){var i=t.css,s=t.media,n=t.sourceMap;if(s&&e.setAttribute("media",s),u.ssrId&&e.setAttribute(f,t.id),n&&(i+="\n/*# sourceURL="+n.sources[0]+" */",i+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(n))))+" */"),e.styleSheet)e.styleSheet.cssText=i;else{for(;e.firstChild;)e.removeChild(e.firstChild);e.appendChild(document.createTextNode(i))}}}]);
+(function (OCA) {
+  /**
+   * @class OCA.SystemTags.SystemTagsInfoViewToggleView
+   * @classdesc
+   *
+   * View to toggle the visibility of a SystemTagsInfoView.
+   *
+   * This toggle view must be explicitly rendered before it is used.
+   */
+  var SystemTagsInfoViewToggleView = OC.Backbone.View.extend(
+  /** @lends OC.Backbone.View.prototype */
+  {
+    tagName: 'span',
+    className: 'tag-label',
+    events: {
+      'click': 'click'
+    },
+
+    /**
+     * @type OCA.SystemTags.SystemTagsInfoView
+     */
+    _systemTagsInfoView: null,
+    template: function template(data) {
+      return '<span class="icon icon-tag"/>' + t('systemtags', 'Tags');
+    },
+
+    /**
+     * Initialize this toggle view.
+     *
+     * The options must provide a systemTagsInfoView parameter that
+     * references the SystemTagsInfoView to associate to this toggle view.
+     * @param {Object} options options
+     */
+    initialize: function initialize(options) {
+      options = options || {};
+      this._systemTagsInfoView = options.systemTagsInfoView;
+
+      if (!this._systemTagsInfoView) {
+        throw new Error('Missing required parameter "systemTagsInfoView"');
+      }
+    },
+
+    /**
+    * Toggles the visibility of the associated SystemTagsInfoView.
+    *
+    * When the systemTagsInfoView is shown its dropdown is also opened.
+    */
+    click: function click() {
+      if (this._systemTagsInfoView.isVisible()) {
+        this._systemTagsInfoView.hide();
+      } else {
+        this._systemTagsInfoView.show();
+
+        this._systemTagsInfoView.openDropdown();
+      }
+    },
+
+    /**
+     * Renders this toggle view.
+     *
+     * @returns {OCA.SystemTags.SystemTagsInfoViewToggleView} this object.
+     */
+    render: function render() {
+      this.$el.html(this.template());
+      return this;
+    }
+  });
+  OCA.SystemTags.SystemTagsInfoViewToggleView = SystemTagsInfoViewToggleView;
+})(OCA);
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./apps/systemtags/src/css/systemtagsfilelist.scss":
+/*!**************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./apps/systemtags/src/css/systemtagsfilelist.scss ***!
+  \**************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js")(false);
+// Module
+exports.push([module.i, "/*\n * Copyright (c) 2016\n *\n * This file is licensed under the Affero General Public License version 3\n * or later.\n *\n * See the COPYING-README file.\n *\n */\n#app-content-systemtagsfilter .select2-container {\n  width: 30%;\n  margin-left: 10px; }\n\n#app-sidebar .mainFileInfoView .tag-label {\n  cursor: pointer;\n  padding: 13px; }\n\n#app-sidebar .mainFileInfoView .icon-tag {\n  opacity: .5;\n  vertical-align: middle; }\n", ""]);
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/runtime/api.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/css-loader/dist/runtime/api.js ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/*
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+// eslint-disable-next-line func-names
+module.exports = function (useSourceMap) {
+  var list = []; // return the list of modules as css string
+
+  list.toString = function toString() {
+    return this.map(function (item) {
+      var content = cssWithMappingToString(item, useSourceMap);
+
+      if (item[2]) {
+        return "@media ".concat(item[2], "{").concat(content, "}");
+      }
+
+      return content;
+    }).join('');
+  }; // import a list of modules into the list
+  // eslint-disable-next-line func-names
+
+
+  list.i = function (modules, mediaQuery) {
+    if (typeof modules === 'string') {
+      // eslint-disable-next-line no-param-reassign
+      modules = [[null, modules, '']];
+    }
+
+    var alreadyImportedModules = {};
+
+    for (var i = 0; i < this.length; i++) {
+      // eslint-disable-next-line prefer-destructuring
+      var id = this[i][0];
+
+      if (id != null) {
+        alreadyImportedModules[id] = true;
+      }
+    }
+
+    for (var _i = 0; _i < modules.length; _i++) {
+      var item = modules[_i]; // skip already imported module
+      // this implementation is not 100% perfect for weird media query combinations
+      // when a module is imported multiple times with different media queries.
+      // I hope this will never occur (Hey this way we have smaller bundles)
+
+      if (item[0] == null || !alreadyImportedModules[item[0]]) {
+        if (mediaQuery && !item[2]) {
+          item[2] = mediaQuery;
+        } else if (mediaQuery) {
+          item[2] = "(".concat(item[2], ") and (").concat(mediaQuery, ")");
+        }
+
+        list.push(item);
+      }
+    }
+  };
+
+  return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+  var content = item[1] || ''; // eslint-disable-next-line prefer-destructuring
+
+  var cssMapping = item[3];
+
+  if (!cssMapping) {
+    return content;
+  }
+
+  if (useSourceMap && typeof btoa === 'function') {
+    var sourceMapping = toComment(cssMapping);
+    var sourceURLs = cssMapping.sources.map(function (source) {
+      return "/*# sourceURL=".concat(cssMapping.sourceRoot).concat(source, " */");
+    });
+    return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+  }
+
+  return [content].join('\n');
+} // Adapted from convert-source-map (MIT)
+
+
+function toComment(sourceMap) {
+  // eslint-disable-next-line no-undef
+  var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+  var data = "sourceMappingURL=data:application/json;charset=utf-8;base64,".concat(base64);
+  return "/*# ".concat(data, " */");
+}
+
+/***/ }),
+
+/***/ "./node_modules/vue-style-loader/lib/addStylesClient.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/vue-style-loader/lib/addStylesClient.js ***!
+  \**************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return addStylesClient; });
+/* harmony import */ var _listToStyles__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./listToStyles */ "./node_modules/vue-style-loader/lib/listToStyles.js");
+/*
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
+  Modified by Evan You @yyx990803
+*/
+
+
+
+var hasDocument = typeof document !== 'undefined'
+
+if (typeof DEBUG !== 'undefined' && DEBUG) {
+  if (!hasDocument) {
+    throw new Error(
+    'vue-style-loader cannot be used in a non-browser environment. ' +
+    "Use { target: 'node' } in your Webpack config to indicate a server-rendering environment."
+  ) }
+}
+
+/*
+type StyleObject = {
+  id: number;
+  parts: Array<StyleObjectPart>
+}
+
+type StyleObjectPart = {
+  css: string;
+  media: string;
+  sourceMap: ?string
+}
+*/
+
+var stylesInDom = {/*
+  [id: number]: {
+    id: number,
+    refs: number,
+    parts: Array<(obj?: StyleObjectPart) => void>
+  }
+*/}
+
+var head = hasDocument && (document.head || document.getElementsByTagName('head')[0])
+var singletonElement = null
+var singletonCounter = 0
+var isProduction = false
+var noop = function () {}
+var options = null
+var ssrIdKey = 'data-vue-ssr-id'
+
+// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+// tags it will allow on a page
+var isOldIE = typeof navigator !== 'undefined' && /msie [6-9]\b/.test(navigator.userAgent.toLowerCase())
+
+function addStylesClient (parentId, list, _isProduction, _options) {
+  isProduction = _isProduction
+
+  options = _options || {}
+
+  var styles = Object(_listToStyles__WEBPACK_IMPORTED_MODULE_0__["default"])(parentId, list)
+  addStylesToDom(styles)
+
+  return function update (newList) {
+    var mayRemove = []
+    for (var i = 0; i < styles.length; i++) {
+      var item = styles[i]
+      var domStyle = stylesInDom[item.id]
+      domStyle.refs--
+      mayRemove.push(domStyle)
+    }
+    if (newList) {
+      styles = Object(_listToStyles__WEBPACK_IMPORTED_MODULE_0__["default"])(parentId, newList)
+      addStylesToDom(styles)
+    } else {
+      styles = []
+    }
+    for (var i = 0; i < mayRemove.length; i++) {
+      var domStyle = mayRemove[i]
+      if (domStyle.refs === 0) {
+        for (var j = 0; j < domStyle.parts.length; j++) {
+          domStyle.parts[j]()
+        }
+        delete stylesInDom[domStyle.id]
+      }
+    }
+  }
+}
+
+function addStylesToDom (styles /* Array<StyleObject> */) {
+  for (var i = 0; i < styles.length; i++) {
+    var item = styles[i]
+    var domStyle = stylesInDom[item.id]
+    if (domStyle) {
+      domStyle.refs++
+      for (var j = 0; j < domStyle.parts.length; j++) {
+        domStyle.parts[j](item.parts[j])
+      }
+      for (; j < item.parts.length; j++) {
+        domStyle.parts.push(addStyle(item.parts[j]))
+      }
+      if (domStyle.parts.length > item.parts.length) {
+        domStyle.parts.length = item.parts.length
+      }
+    } else {
+      var parts = []
+      for (var j = 0; j < item.parts.length; j++) {
+        parts.push(addStyle(item.parts[j]))
+      }
+      stylesInDom[item.id] = { id: item.id, refs: 1, parts: parts }
+    }
+  }
+}
+
+function createStyleElement () {
+  var styleElement = document.createElement('style')
+  styleElement.type = 'text/css'
+  head.appendChild(styleElement)
+  return styleElement
+}
+
+function addStyle (obj /* StyleObjectPart */) {
+  var update, remove
+  var styleElement = document.querySelector('style[' + ssrIdKey + '~="' + obj.id + '"]')
+
+  if (styleElement) {
+    if (isProduction) {
+      // has SSR styles and in production mode.
+      // simply do nothing.
+      return noop
+    } else {
+      // has SSR styles but in dev mode.
+      // for some reason Chrome can't handle source map in server-rendered
+      // style tags - source maps in <style> only works if the style tag is
+      // created and inserted dynamically. So we remove the server rendered
+      // styles and inject new ones.
+      styleElement.parentNode.removeChild(styleElement)
+    }
+  }
+
+  if (isOldIE) {
+    // use singleton mode for IE9.
+    var styleIndex = singletonCounter++
+    styleElement = singletonElement || (singletonElement = createStyleElement())
+    update = applyToSingletonTag.bind(null, styleElement, styleIndex, false)
+    remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true)
+  } else {
+    // use multi-style-tag mode in all other cases
+    styleElement = createStyleElement()
+    update = applyToTag.bind(null, styleElement)
+    remove = function () {
+      styleElement.parentNode.removeChild(styleElement)
+    }
+  }
+
+  update(obj)
+
+  return function updateStyle (newObj /* StyleObjectPart */) {
+    if (newObj) {
+      if (newObj.css === obj.css &&
+          newObj.media === obj.media &&
+          newObj.sourceMap === obj.sourceMap) {
+        return
+      }
+      update(obj = newObj)
+    } else {
+      remove()
+    }
+  }
+}
+
+var replaceText = (function () {
+  var textStore = []
+
+  return function (index, replacement) {
+    textStore[index] = replacement
+    return textStore.filter(Boolean).join('\n')
+  }
+})()
+
+function applyToSingletonTag (styleElement, index, remove, obj) {
+  var css = remove ? '' : obj.css
+
+  if (styleElement.styleSheet) {
+    styleElement.styleSheet.cssText = replaceText(index, css)
+  } else {
+    var cssNode = document.createTextNode(css)
+    var childNodes = styleElement.childNodes
+    if (childNodes[index]) styleElement.removeChild(childNodes[index])
+    if (childNodes.length) {
+      styleElement.insertBefore(cssNode, childNodes[index])
+    } else {
+      styleElement.appendChild(cssNode)
+    }
+  }
+}
+
+function applyToTag (styleElement, obj) {
+  var css = obj.css
+  var media = obj.media
+  var sourceMap = obj.sourceMap
+
+  if (media) {
+    styleElement.setAttribute('media', media)
+  }
+  if (options.ssrId) {
+    styleElement.setAttribute(ssrIdKey, obj.id)
+  }
+
+  if (sourceMap) {
+    // https://developer.chrome.com/devtools/docs/javascript-debugging
+    // this makes source maps inside style tags work properly in Chrome
+    css += '\n/*# sourceURL=' + sourceMap.sources[0] + ' */'
+    // http://stackoverflow.com/a/26603875
+    css += '\n/*# sourceMappingURL=data:application/json;base64,' + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + ' */'
+  }
+
+  if (styleElement.styleSheet) {
+    styleElement.styleSheet.cssText = css
+  } else {
+    while (styleElement.firstChild) {
+      styleElement.removeChild(styleElement.firstChild)
+    }
+    styleElement.appendChild(document.createTextNode(css))
+  }
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-style-loader/lib/listToStyles.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/vue-style-loader/lib/listToStyles.js ***!
+  \***********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return listToStyles; });
+/**
+ * Translates the list format produced by css-loader into something
+ * easier to manipulate.
+ */
+function listToStyles (parentId, list) {
+  var styles = []
+  var newStyles = {}
+  for (var i = 0; i < list.length; i++) {
+    var item = list[i]
+    var id = item[0]
+    var css = item[1]
+    var media = item[2]
+    var sourceMap = item[3]
+    var part = {
+      id: parentId + ':' + i,
+      css: css,
+      media: media,
+      sourceMap: sourceMap
+    }
+    if (!newStyles[id]) {
+      styles.push(newStyles[id] = { id: id, parts: [part] })
+    } else {
+      newStyles[id].parts.push(part)
+    }
+  }
+  return styles
+}
+
+
+/***/ })
+
+/******/ });
 //# sourceMappingURL=systemtags.js.map

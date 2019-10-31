@@ -17,13 +17,13 @@ export default {
 	props: {
 		operation: {
 			type: Object,
-			required: true
+			required: true,
 		},
 		colored: {
 			type: Boolean,
-			default: true
-		}
-	}
+			default: true,
+		},
+	},
 }
 </script>
 

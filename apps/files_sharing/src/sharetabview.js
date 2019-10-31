@@ -11,7 +11,7 @@
 /* @global Handlebars */
 
 (function() {
-	var TEMPLATE
+	const TEMPLATE
 		= '<div>'
 		+ '<div class="dialogContainer"></div>'
 		+ '<div id="collaborationResources"></div>'
@@ -20,7 +20,7 @@
 	/**
 	 * @memberof OCA.Sharing
 	 */
-	var ShareTabView = OCA.Files.DetailTabView.extend(
+	const ShareTabView = OCA.Files.DetailTabView.extend(
 		/** @lends OCA.Sharing.ShareTabView.prototype */ {
 			id: 'shareTabView',
 			className: 'tab shareTabView',
@@ -46,7 +46,7 @@
 		 * Renders this details view
 		 */
 			render: function() {
-				var self = this
+				const self = this
 				if (this._dialog) {
 				// remove/destroy older instance
 					this._dialog.model.off()
@@ -62,19 +62,19 @@
 					}
 
 					// TODO: the model should read these directly off the passed fileInfoModel
-					var attributes = {
+					const attributes = {
 						itemType: this.model.isDirectory() ? 'folder' : 'file',
 						itemSource: this.model.get('id'),
-						possiblePermissions: this.model.get('sharePermissions')
+						possiblePermissions: this.model.get('sharePermissions'),
 					}
-					var configModel = new OC.Share.ShareConfigModel()
-					var shareModel = new OC.Share.ShareItemModel(attributes, {
+					const configModel = new OC.Share.ShareConfigModel()
+					const shareModel = new OC.Share.ShareItemModel(attributes, {
 						configModel: configModel,
-						fileInfoModel: this.model
+						fileInfoModel: this.model,
 					})
 					this._dialog = new OC.Share.ShareDialogView({
 						configModel: configModel,
-						model: shareModel
+						model: shareModel,
 					})
 					this.$el.find('.dialogContainer').append(this._dialog.$el)
 					this._dialog.render()
@@ -84,12 +84,12 @@
 					})
 
 				import('./collaborationresources').then((Resources) => {
-					var vm = new Resources.Vue({
+					const vm = new Resources.Vue({
 						el: '#collaborationResources',
 						render: h => h(Resources.View),
 						data: {
-							model: this.model.toJSON()
-						}
+							model: this.model.toJSON(),
+						},
 					})
 					this.model.on('change', () => { vm.data = this.model.toJSON() })
 
@@ -100,7 +100,7 @@
 				// TODO: render placeholder text?
 				}
 				this.trigger('rendered')
-			}
+			},
 		})
 
 	OCA.Sharing.ShareTabView = ShareTabView

@@ -54,10 +54,10 @@ import valueMixin from './../../mixins/valueMixin'
 export default {
 	name: 'FileMimeType',
 	components: {
-		Multiselect
+		Multiselect,
 	},
 	mixins: [
-		valueMixin
+		valueMixin,
 	],
 	data() {
 		return {
@@ -65,19 +65,19 @@ export default {
 				{
 					icon: 'icon-picture',
 					label: t('workflowengine', 'Images'),
-					pattern: '/image\\/.*/'
+					pattern: '/image\\/.*/',
 				},
 				{
 					icon: 'icon-category-office',
 					label: t('workflowengine', 'Office documents'),
-					pattern: '/(vnd\\.(ms-|openxmlformats-).*))$/'
+					pattern: '/(vnd\\.(ms-|openxmlformats-).*))$/',
 				},
 				{
 					icon: 'icon-filetype-file',
 					label: t('workflowengine', 'PDF documents'),
-					pattern: 'application/pdf'
-				}
-			]
+					pattern: 'application/pdf',
+				},
+			],
 		}
 	},
 	computed: {
@@ -95,7 +95,7 @@ export default {
 			return {
 				icon: 'icon-settings-dark',
 				label: t('workflowengine', 'Custom mimetype'),
-				pattern: ''
+				pattern: '',
 			}
 		},
 		currentValue() {
@@ -106,14 +106,14 @@ export default {
 			return {
 				icon: 'icon-settings-dark',
 				label: t('workflowengine', 'Custom mimetype'),
-				pattern: this.newValue
+				pattern: this.newValue,
 			}
-		}
+		},
 	},
 	methods: {
 		validateRegex(string) {
-			var regexRegex = /^\/(.*)\/([gui]{0,3})$/
-			var result = regexRegex.exec(string)
+			const regexRegex = /^\/(.*)\/([gui]{0,3})$/
+			const result = regexRegex.exec(string)
 			return result !== null
 		},
 		setValue(value) {
@@ -126,7 +126,7 @@ export default {
 		updateCustom(event) {
 			this.newValue = event.target.value
 			this.$emit('input', this.newValue)
-		}
-	}
+		},
+	},
 }
 </script>

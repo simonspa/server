@@ -69,7 +69,7 @@ export default {
 
 	components: {
 		AppSidebar,
-		LegacyView
+		LegacyView,
 	},
 
 	data() {
@@ -78,7 +78,7 @@ export default {
 			Sidebar: OCA.Files.Sidebar.state,
 			error: null,
 			fileInfo: null,
-			starLoading: false
+			starLoading: false,
 		}
 	},
 
@@ -174,19 +174,19 @@ export default {
 					'star-loading': this.starLoading,
 					starred: this.fileInfo.isFavourited,
 					subtitle: this.subtitle,
-					title: this.fileInfo.name
+					title: this.fileInfo.name,
 				}
 			} else if (this.error) {
 				return {
 					key: 'error', // force key to re-render
 					subtitle: '',
-					title: ''
+					title: '',
 				}
 			} else {
 				return {
 					class: 'icon-loading',
 					subtitle: '',
-					title: ''
+					title: '',
 				}
 			}
 		},
@@ -213,7 +213,7 @@ export default {
 		 */
 		defaultActionListener() {
 			return this.defaultAction ? 'figure-click' : null
-		}
+		},
 	},
 
 	watch: {
@@ -242,7 +242,7 @@ export default {
 					console.error('Error while loading the file data')
 				}
 			}
-		}
+		},
 	},
 
 	methods: {
@@ -283,11 +283,11 @@ export default {
 			if (tab.isLegacyTab) {
 				return {
 					is: LegacyTab,
-					component: tab.component
+					component: tab.component,
 				}
 			}
 			return {
-				is: tab.component
+				is: tab.component,
 			}
 		},
 
@@ -319,7 +319,7 @@ export default {
 								<oc:favorite>1</oc:favorite>
 							</d:prop>
 						${state ? '</d:set>' : '</d:remove>'}
-						</d:propertyupdate>`
+						</d:propertyupdate>`,
 				})
 
 				// TODO: Obliterate as soon as possible and use events with new files app
@@ -342,11 +342,11 @@ export default {
 					fileInfo: this.fileInfo,
 					dir: this.fileInfo.dir,
 					fileList: OCA.Files.App.fileList,
-					$file: $('body')
+					$file: $('body'),
 				})
 			}
-		}
-	}
+		},
+	},
 }
 </script>
 <style lang="scss" scoped>

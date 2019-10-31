@@ -27,7 +27,7 @@
 
 	OC.Share.Social = {}
 
-	var SocialModel = OC.Backbone.Model.extend({
+	const SocialModel = OC.Backbone.Model.extend({
 		defaults: {
 			/** used for sorting social buttons */
 			key: null,
@@ -38,16 +38,16 @@
 			/** Icon class to display */
 			iconClass: null,
 			/** Open in new windows */
-			newWindow: true
-		}
+			newWindow: true,
+		},
 	})
 
 	OC.Share.Social.Model = SocialModel
 
-	var SocialCollection = OC.Backbone.Collection.extend({
+	const SocialCollection = OC.Backbone.Collection.extend({
 		model: OC.Share.Social.Model,
 
-		comparator: 'key'
+		comparator: 'key',
 	})
 
 	OC.Share.Social.Collection = new SocialCollection()

@@ -36,19 +36,19 @@ export default {
 	name: 'Workflow',
 	components: {
 		Operation,
-		Rule
+		Rule,
 	},
 	data() {
 		return {
-			showMoreOperations: false
+			showMoreOperations: false,
 		}
 	},
 	computed: {
 		...mapGetters({
-			rules: 'getRules'
+			rules: 'getRules',
 		}),
 		...mapState({
-			operations: 'operations'
+			operations: 'operations',
 		}),
 		hasMoreOperations() {
 			return Object.keys(this.operations).length > ACTION_LIMIT
@@ -58,7 +58,7 @@ export default {
 				return Object.values(this.operations)
 			}
 			return Object.values(this.operations).slice(0, ACTION_LIMIT)
-		}
+		},
 	},
 	mounted() {
 		this.$store.dispatch('fetchRules')
@@ -66,8 +66,8 @@ export default {
 	methods: {
 		createNewRule(operation) {
 			this.$store.dispatch('createNewRule', operation)
-		}
-	}
+		},
+	},
 }
 </script>
 

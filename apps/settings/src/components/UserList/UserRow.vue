@@ -216,44 +216,44 @@ export default {
 	name: 'UserRow',
 	components: {
 		PopoverMenu,
-		Multiselect
+		Multiselect,
 	},
 	directives: {
-		ClickOutside
+		ClickOutside,
 	},
 	props: {
 		user: {
 			type: Object,
-			required: true
+			required: true,
 		},
 		settings: {
 			type: Object,
-			default: () => ({})
+			default: () => ({}),
 		},
 		groups: {
 			type: Array,
-			default: () => []
+			default: () => [],
 		},
 		subAdminsGroups: {
 			type: Array,
-			default: () => []
+			default: () => [],
 		},
 		quotaOptions: {
 			type: Array,
-			default: () => []
+			default: () => [],
 		},
 		showConfig: {
 			type: Object,
-			default: () => ({})
+			default: () => ({}),
 		},
 		languages: {
 			type: Array,
-			required: true
+			required: true,
 		},
 		externalActions: {
 			type: Array,
-			default: () => []
-		}
+			default: () => [],
+		},
 	},
 	data() {
 		return {
@@ -271,35 +271,35 @@ export default {
 				delete: false,
 				disable: false,
 				languages: false,
-				wipe: false
-			}
+				wipe: false,
+			},
 		}
 	},
 	computed: {
 		/* USER POPOVERMENU ACTIONS */
 		userActions() {
-			let actions = [
+			const actions = [
 				{
 					icon: 'icon-delete',
 					text: t('settings', 'Delete user'),
-					action: this.deleteUser
+					action: this.deleteUser,
 				},
 				{
 					icon: 'icon-delete',
 					text: t('settings', 'Wipe all devices'),
-					action: this.wipeUserDevices
+					action: this.wipeUserDevices,
 				},
 				{
 					icon: this.user.enabled ? 'icon-close' : 'icon-add',
 					text: this.user.enabled ? t('settings', 'Disable user') : t('settings', 'Enable user'),
-					action: this.enableDisableUser
-				}
+					action: this.enableDisableUser,
+				},
 			]
 			if (this.user.email !== null && this.user.email !== '') {
 				actions.push({
 					icon: 'icon-mail',
 					text: t('settings', 'Resend welcome email'),
-					action: this.sendWelcomeMail
+					action: this.sendWelcomeMail,
 				})
 			}
 			return actions.concat(this.externalActions)
@@ -307,18 +307,18 @@ export default {
 
 		/* GROUPS MANAGEMENT */
 		userGroups() {
-			let userGroups = this.groups.filter(group => this.user.groups.includes(group.id))
+			const userGroups = this.groups.filter(group => this.user.groups.includes(group.id))
 			return userGroups
 		},
 		userSubAdminsGroups() {
-			let userSubAdminsGroups = this.subAdminsGroups.filter(group => this.user.subadmin.includes(group.id))
+			const userSubAdminsGroups = this.subAdminsGroups.filter(group => this.user.subadmin.includes(group.id))
 			return userSubAdminsGroups
 		},
 		availableGroups() {
 			return this.groups.map((group) => {
 				// clone object because we don't want
 				// to edit the original groups
-				let groupClone = Object.assign({}, group)
+				const groupClone = Object.assign({}, group)
 
 				// two settings here:
 				// 1. user NOT in group but no permission to add
@@ -344,7 +344,7 @@ export default {
 			if (quota > 0) {
 				quota = Math.min(100, Math.round(this.user.quota.used / quota * 100))
 			} else {
-				var usedInGB = this.user.quota.used / (10 * Math.pow(2, 30))
+				const usedInGB = this.user.quota.used / (10 * Math.pow(2, 30))
 				// asymptotic curve approaching 50% at 10GB to visualize used stace with infinite quota
 				quota = 95 * (1 - (1 / (usedInGB + 1)))
 			}
@@ -354,8 +354,8 @@ export default {
 		userQuota() {
 			if (this.user.quota.quota >= 0) {
 				// if value is valid, let's map the quotaOptions or return custom quota
-				let humanQuota = OC.Util.humanFileSize(this.user.quota.quota)
-				let userQuota = this.quotaOptions.find(quota => quota.id === humanQuota)
+				const humanQuota = OC.Util.humanFileSize(this.user.quota.quota)
+				const userQuota = this.quotaOptions.find(quota => quota.id === humanQuota)
 				return userQuota || { id: humanQuota, label: humanQuota }
 			} else if (this.user.quota.quota === 'default') {
 				// default quota is replaced by the proper value on load
@@ -371,18 +371,18 @@ export default {
 
 		/* LANGUAGE */
 		userLanguage() {
-			let availableLanguages = this.languages[0].languages.concat(this.languages[1].languages)
-			let userLang = availableLanguages.find(lang => lang.code === this.user.language)
+			const availableLanguages = this.languages[0].languages.concat(this.languages[1].languages)
+			const userLang = availableLanguages.find(lang => lang.code === this.user.language)
 			if (typeof userLang !== 'object' && this.user.language !== '') {
 				return {
 					code: this.user.language,
-					name: this.user.language
+					name: this.user.language,
 				}
 			} else if (this.user.language === '') {
 				return false
 			}
 			return userLang
-		}
+		},
 	},
 	mounted() {
 		// required if popup needs to stay opened after menu click
@@ -411,7 +411,7 @@ export default {
 				{
 					user: user,
 					size: size,
-					version: oc_userconfig.avatar.version
+					version: oc_userconfig.avatar.version,
 				}
 			)
 		},
@@ -423,14 +423,14 @@ export default {
 		 * @returns {string}
 		 */
 		formatGroupsTitle(groups) {
-			let names = groups.map(group => group.name)
+			const names = groups.map(group => group.name)
 			return names.slice(2).join(', ')
 		},
 
 		wipeUserDevices() {
 			this.loading.wipe = true
 			this.loading.all = true
-			let userid = this.user.id
+			const userid = this.user.id
 			return this.$store.dispatch('wipeUserDevices', userid)
 				.then(() => {
 					this.loading.wipe = false
@@ -441,7 +441,7 @@ export default {
 		deleteUser() {
 			this.loading.delete = true
 			this.loading.all = true
-			let userid = this.user.id
+			const userid = this.user.id
 			return this.$store.dispatch('deleteUser', userid)
 				.then(() => {
 					this.loading.delete = false
@@ -452,8 +452,8 @@ export default {
 		enableDisableUser() {
 			this.loading.delete = true
 			this.loading.all = true
-			let userid = this.user.id
-			let enabled = !this.user.enabled
+			const userid = this.user.id
+			const enabled = !this.user.enabled
 			return this.$store.dispatch('enableDisableUser', { userid, enabled })
 				.then(() => {
 					this.loading.delete = false
@@ -467,12 +467,12 @@ export default {
 		 * @param {string} displayName The display name
 		 */
 		updateDisplayName() {
-			let displayName = this.$refs.displayName.value
+			const displayName = this.$refs.displayName.value
 			this.loading.displayName = true
 			this.$store.dispatch('setUserData', {
 				userid: this.user.id,
 				key: 'displayname',
-				value: displayName
+				value: displayName,
 			}).then(() => {
 				this.loading.displayName = false
 				this.$refs.displayName.value = displayName
@@ -485,12 +485,12 @@ export default {
 		 * @param {string} password The email adress
 		 */
 		updatePassword() {
-			let password = this.$refs.password.value
+			const password = this.$refs.password.value
 			this.loading.password = true
 			this.$store.dispatch('setUserData', {
 				userid: this.user.id,
 				key: 'password',
-				value: password
+				value: password,
 			}).then(() => {
 				this.loading.password = false
 				this.$refs.password.value = '' // empty & show placeholder
@@ -503,12 +503,12 @@ export default {
 		 * @param {string} mailAddress The email adress
 		 */
 		updateEmail() {
-			let mailAddress = this.$refs.mailAddress.value
+			const mailAddress = this.$refs.mailAddress.value
 			this.loading.mailAddress = true
 			this.$store.dispatch('setUserData', {
 				userid: this.user.id,
 				key: 'email',
-				value: mailAddress
+				value: mailAddress,
 			}).then(() => {
 				this.loading.mailAddress = false
 				this.$refs.mailAddress.value = mailAddress
@@ -524,7 +524,7 @@ export default {
 			this.loading = { groups: true, subadmins: true }
 			try {
 				await this.$store.dispatch('addGroup', gid)
-				let userid = this.user.id
+				const userid = this.user.id
 				await this.$store.dispatch('addUserGroup', { userid, gid })
 			} catch (error) {
 				console.error(error)
@@ -544,8 +544,8 @@ export default {
 				return false
 			}
 			this.loading.groups = true
-			let userid = this.user.id
-			let gid = group.id
+			const userid = this.user.id
+			const gid = group.id
 			try {
 				await this.$store.dispatch('addUserGroup', { userid, gid })
 			} catch (error) {
@@ -566,8 +566,8 @@ export default {
 			}
 
 			this.loading.groups = true
-			let userid = this.user.id
-			let gid = group.id
+			const userid = this.user.id
+			const gid = group.id
 
 			try {
 				await this.$store.dispatch('removeUserGroup', { userid, gid })
@@ -588,8 +588,8 @@ export default {
 		 */
 		async addUserSubAdmin(group) {
 			this.loading.subadmins = true
-			let userid = this.user.id
-			let gid = group.id
+			const userid = this.user.id
+			const gid = group.id
 
 			try {
 				await this.$store.dispatch('addUserSubAdmin', { userid, gid })
@@ -606,8 +606,8 @@ export default {
 		 */
 		async removeUserSubAdmin(group) {
 			this.loading.subadmins = true
-			let userid = this.user.id
-			let gid = group.id
+			const userid = this.user.id
+			const gid = group.id
 
 			try {
 				await this.$store.dispatch('removeUserSubAdmin', { userid, gid })
@@ -633,7 +633,7 @@ export default {
 				await this.$store.dispatch('setUserData', {
 					userid: this.user.id,
 					key: 'quota',
-					value: quota
+					value: quota,
 				})
 			} catch (error) {
 				console.error(error)
@@ -651,7 +651,7 @@ export default {
 		 */
 		validateQuota(quota) {
 			// only used for new presets sent through @Tag
-			let validQuota = OC.Util.computerFileSize(quota)
+			const validQuota = OC.Util.computerFileSize(quota)
 			if (validQuota !== null && validQuota >= 0) {
 				// unify format output
 				return this.setUserQuota(OC.Util.humanFileSize(OC.Util.computerFileSize(quota)))
@@ -673,7 +673,7 @@ export default {
 				await this.$store.dispatch('setUserData', {
 					userid: this.user.id,
 					key: 'language',
-					value: lang.code
+					value: lang.code,
 				})
 			} catch (error) {
 				console.error(error)
@@ -699,8 +699,8 @@ export default {
 					}
 					this.loading.all = false
 				})
-		}
+		},
 
-	}
+	},
 }
 </script>

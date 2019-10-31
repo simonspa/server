@@ -39,14 +39,14 @@ import axios from '@nextcloud/axios'
 export default {
 	name: 'RequestUserGroup',
 	components: {
-		Multiselect
+		Multiselect,
 	},
 	mixins: [
-		valueMixin
+		valueMixin,
 	],
 	data() {
 		return {
-			groups: []
+			groups: [],
 		}
 	},
 	beforeMount() {
@@ -54,7 +54,7 @@ export default {
 			this.groups = response.data.ocs.data.groups.reduce((obj, item) => {
 				obj.push({
 					id: item,
-					displayname: item
+					displayname: item,
 				})
 				return obj
 			}, [])
@@ -71,7 +71,7 @@ export default {
 			if (value !== null) {
 				this.$emit('input', this.newValue.id)
 			}
-		}
-	}
+		},
+	},
 }
 </script>

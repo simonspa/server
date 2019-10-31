@@ -132,11 +132,11 @@ export default {
 		ActionCheckbox,
 		ActionInput,
 		ActionTextEditable,
-		Avatar
+		Avatar,
 	},
 
 	directives: {
-		Tooltip
+		Tooltip,
 	},
 
 	mixins: [SharesMixin],
@@ -145,7 +145,7 @@ export default {
 		return {
 			permissionsEdit: OC.PERMISSION_UPDATE,
 			permissionsRead: OC.PERMISSION_READ,
-			permissionsShare: OC.PERMISSION_SHARE
+			permissionsShare: OC.PERMISSION_SHARE,
 		}
 	},
 
@@ -172,7 +172,7 @@ export default {
 					// todo: strong or italic?
 					// but the t function escape any html from the data :/
 					user: this.share.shareWithDisplayName,
-					owner: this.share.owner
+					owner: this.share.owner,
 				}
 
 				if (this.share.type === this.SHARE_TYPES.SHARE_TYPE_GROUP) {
@@ -200,7 +200,7 @@ export default {
 			},
 			set: function(checked) {
 				this.updatePermissions(checked, this.canReshare)
-			}
+			},
 		},
 
 		/**
@@ -212,8 +212,8 @@ export default {
 			},
 			set: function(checked) {
 				this.updatePermissions(this.canEdit, checked)
-			}
-		}
+			},
+		},
 
 	},
 
@@ -226,8 +226,8 @@ export default {
 
 			this.share.permissions = permissions
 			this.queueUpdate('permissions')
-		}
-	}
+		},
+	},
 
 }
 </script>

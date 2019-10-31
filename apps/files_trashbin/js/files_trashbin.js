@@ -1,2 +1,983 @@
-!function(e){var t={};function i(n){if(t[n])return t[n].exports;var r=t[n]={i:n,l:!1,exports:{}};return e[n].call(r.exports,r,r.exports,i),r.l=!0,r.exports}i.m=e,i.c=t,i.d=function(e,t,n){i.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},i.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},i.t=function(e,t){if(1&t&&(e=i(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(i.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var r in e)i.d(n,r,function(t){return e[t]}.bind(null,r));return n},i.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return i.d(t,"a",t),t},i.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},i.p="/js/",i(i.s=0)}([function(e,t,i){"use strict";i.r(t);i(1),i(2),i(3);window.OCA.Trashbin=OCA.Trashbin},function(e,i){OCA.Trashbin={},OCA.Trashbin.App={_initialized:!1,client:null,initialize:function(e){if(!this._initialized){this._initialized=!0,this.client=new OC.Files.Client({host:OC.getHost(),port:OC.getPort(),root:OC.linkToRemoteBase("dav")+"/trashbin/"+OC.getCurrentUser().uid,useHTTPS:"https"===OC.getProtocol()});var i=OC.Util.History.parseUrlQuery();this.fileList=new OCA.Trashbin.FileList($("#app-content-trashbin"),{fileActions:this._createFileActions(),detailsViewEnabled:!1,scrollTo:i.scrollto,config:OCA.Files.App.getFilesConfig(),multiSelectMenu:[{name:"restore",displayName:t("files_trashbin","Restore"),iconClass:"icon-history"},{name:"delete",displayName:t("files_trashbin","Delete permanently"),iconClass:"icon-delete"}],client:this.client,shown:!0})}},_createFileActions:function(){var e=this.client,i=new OCA.Files.FileActions;return i.register("dir","Open",OC.PERMISSION_READ,"",(function(e,t){var i=t.fileList.getCurrentDirectory();t.fileList.changeDirectory(OC.joinPaths(i,e))})),i.setDefault("dir","Open"),i.registerAction({name:"Restore",displayName:t("files_trashbin","Restore"),type:OCA.Files.FileActions.TYPE_INLINE,mime:"all",permissions:OC.PERMISSION_READ,iconClass:"icon-history",actionHandler:function(i,n){var r=n.fileList,a=r.findFileEl(i);r.showFileBusyState(a,!0);var o=n.fileList.getCurrentDirectory();e.move(OC.joinPaths("trash",o,i),OC.joinPaths("restore",i),!0).then(r._removeCallback.bind(r,[i]),(function(){r.showFileBusyState(a,!1),OC.Notification.show(t("files_trashbin","Error while restoring file from trashbin"))}))}}),i.registerAction({name:"Delete",displayName:t("files_trashbin","Delete permanently"),mime:"all",permissions:OC.PERMISSION_READ,iconClass:"icon-delete",render:function(e,n,r){var a=i._makeActionLink(e,r);return a.attr("original-title",t("files_trashbin","Delete permanently")),a.children("img").attr("alt",t("files_trashbin","Delete permanently")),r.$file.find("td:last").append(a),a},actionHandler:function(i,n){var r=n.fileList;$(".tipsy").remove();var a=r.findFileEl(i);r.showFileBusyState(a,!0);var o=n.fileList.getCurrentDirectory();e.remove(OC.joinPaths("trash",o,i)).then(r._removeCallback.bind(r,[i]),(function(){r.showFileBusyState(a,!1),OC.Notification.show(t("files_trashbin","Error while removing file from trashbin"))}))}}),i}},$(document).ready((function(){$("#app-content-trashbin").one("show",(function(){OCA.Trashbin.App.initialize($("#app-content-trashbin"))}))}))},function(e,i){!function(){var e=new RegExp(/^(.+)\.d[0-9]+$/),i="{http://nextcloud.org/ns}trashbin-filename",n="{http://nextcloud.org/ns}trashbin-deletion-time",r="{http://nextcloud.org/ns}trashbin-original-location",a="{http://nextcloud.org/ns}trashbin-title";function o(t){t=OC.basename(t);var i=e.exec(t);return i&&i.length>1&&(t=i[1]),t}var s=function(e,t){this.client=t.client,this.initialize(e,t)};s.prototype=_.extend({},OCA.Files.FileList.prototype,{id:"trashbin",appName:t("files_trashbin","Deleted files"),client:null,initialize:function(){this.client.addFileInfoParser((function(e,t){var o=e.propStat[0].properties,s=o[r],l=o[a];return{displayName:o[i],mtime:1e3*parseInt(o[n],10),hasPreview:!0,path:s,extraData:l}}));var e=OCA.Files.FileList.prototype.initialize.apply(this,arguments);return this.$el.find(".undelete").click("click",_.bind(this._onClickRestoreSelected,this)),this.setSort("mtime","desc"),this.breadcrumb._makeCrumbs=function(){for(var e=OCA.Files.BreadCrumb.prototype._makeCrumbs.apply(this,[].concat(Array.prototype.slice.call(arguments),["icon-delete no-hover"])),t=1;t<e.length;t++)e[t].name=o(e[t].name);return e},OC.Plugins.attach("OCA.Trashbin.FileList",this),e},getDirectoryPermissions:function(){return OC.PERMISSION_READ|OC.PERMISSION_DELETE},_setCurrentDir:function(e){OCA.Files.FileList.prototype._setCurrentDir.apply(this,arguments);var t=OC.basename(e);""!==t&&this.setPageTitle(o(t))},_createRow:function(){var e=OCA.Files.FileList.prototype._createRow.apply(this,arguments);return e.find("td.filesize").remove(),e},getAjaxUrl:function(e,t){var i="";return t&&(i="?"+OC.buildQueryString(t)),OC.filePath("files_trashbin","ajax",e+".php")+i},setupUploadEvents:function(){},linkTo:function(e){return OC.linkTo("files","index.php")+"?view=trashbin&dir="+encodeURIComponent(e).replace(/%2F/g,"/")},elementToFile:function(e){var t=OCA.Files.FileList.prototype.elementToFile(e);return"/"===this.getCurrentDirectory()&&(t.displayName=o(t.name)),delete t.size,t},updateEmptyContent:function(){var e=this.$fileList.find("tr:first").exists();this.$el.find("#emptycontent").toggleClass("hidden",e),this.$el.find("#filestable th").toggleClass("hidden",!e)},_removeCallback:function(e){for(var t,i=0;i<e.length;i++)t=this.remove(OC.basename(e[i]),{updateSummary:!1}),this.fileSummary.remove({type:t.attr("data-type"),size:t.attr("data-size")});this.fileSummary.update(),this.updateEmptyContent()},_onClickRestoreSelected:function(e){e.preventDefault();for(var i=this,n=_.pluck(this.getSelectedFiles(),"name"),r=0;r<n.length;r++){var a=this.findFileEl(n[r]);this.showFileBusyState(a,!0)}this.fileMultiSelectMenu.toggleLoading("restore",!0);var o=n.map((function(e){return i.client.move(OC.joinPaths("trash",i.getCurrentDirectory(),e),OC.joinPaths("restore",e),!0).then((function(){i._removeCallback([e])}))}));return Promise.all(o).then((function(){i.fileMultiSelectMenu.toggleLoading("restore",!1)}),(function(){OC.Notification.show(t("files_trashbin","Error while restoring files from trashbin"))}))},_onClickDeleteSelected:function(e){e.preventDefault();for(var i=this,n=this.$el.find(".select-all").is(":checked"),r=_.pluck(this.getSelectedFiles(),"name"),a=0;a<r.length;a++){var o=this.findFileEl(r[a]);this.showFileBusyState(o,!0)}if(n)return this.client.remove(OC.joinPaths("trash",this.getCurrentDirectory())).then((function(){i.hideMask(),i.setFiles([])}),(function(){OC.Notification.show(t("files_trashbin","Error while emptying trashbin"))}));this.fileMultiSelectMenu.toggleLoading("delete",!0);var s=r.map((function(e){return i.client.remove(OC.joinPaths("trash",i.getCurrentDirectory(),e)).then((function(){i._removeCallback([e])}))}));return Promise.all(s).then((function(){i.fileMultiSelectMenu.toggleLoading("delete",!1)}),(function(){OC.Notification.show(t("files_trashbin","Error while removing files from trashbin"))}))},_onClickFile:function(e){var t=$(this).parent().parent().data("mime");return"httpd/unix-directory"!==t&&e.preventDefault(),OCA.Files.FileList.prototype._onClickFile.apply(this,arguments)},generatePreviewUrl:function(e){return OC.generateUrl("/apps/files_trashbin/preview?")+$.param(e)},getDownloadUrl:function(){return"#"},updateStorageStatistics:function(){},isSelectedDeletable:function(){return!0},_getWebdavProperties:function(){return[i,n,r,a].concat(this.filesClient.getPropfindProperties())},reload:function(){this._selectedFiles={},this._selectionSummary.clear(),this.$el.find(".select-all").prop("checked",!1),this.showMask(),this._reloadCall&&this._reloadCall.abort(),this._reloadCall=this.client.getFolderContents("trash/"+this.getCurrentDirectory(),{includeParent:!1,properties:this._getWebdavProperties()});var e=this.reloadCallback.bind(this);return this._reloadCall.then(e,e)},reloadCallback:function(e,i){return delete this._reloadCall,this.hideMask(),401!==e&&(403===e?(this.changeDirectory("/"),OC.Notification.show(t("files","This operation is forbidden")),!1):500===e?(this.changeDirectory("/"),OC.Notification.show(t("files","This directory is unavailable, please check the logs or contact the administrator")),!1):404===e?(this.changeDirectory("/"),!1):0===e||(this.setFiles(i),!0))}}),OCA.Trashbin.FileList=s}()},function(e,t,i){var n=i(4);"string"==typeof n&&(n=[[e.i,n,""]]),n.locals&&(e.exports=n.locals);(0,i(6).default)("e1044e6c",n,!0,{})},function(e,t,i){(e.exports=i(5)(!1)).push([e.i,'#app-content-trashbin tbody tr[data-type="file"] td a.name,#app-content-trashbin tbody tr[data-type="file"] td a.name span.nametext,#app-content-trashbin tbody tr[data-type="file"] td a.name span.nametext span{cursor:default}#app-content-trashbin .summary :last-child{padding:0}#app-content-trashbin #filestable .summary .filesize{display:none}\n',""])},function(e,t,i){"use strict";e.exports=function(e){var t=[];return t.toString=function(){return this.map((function(t){var i=function(e,t){var i=e[1]||"",n=e[3];if(!n)return i;if(t&&"function"==typeof btoa){var r=(o=n,s=btoa(unescape(encodeURIComponent(JSON.stringify(o)))),l="sourceMappingURL=data:application/json;charset=utf-8;base64,".concat(s),"/*# ".concat(l," */")),a=n.sources.map((function(e){return"/*# sourceURL=".concat(n.sourceRoot).concat(e," */")}));return[i].concat(a).concat([r]).join("\n")}var o,s,l;return[i].join("\n")}(t,e);return t[2]?"@media ".concat(t[2],"{").concat(i,"}"):i})).join("")},t.i=function(e,i){"string"==typeof e&&(e=[[null,e,""]]);for(var n={},r=0;r<this.length;r++){var a=this[r][0];null!=a&&(n[a]=!0)}for(var o=0;o<e.length;o++){var s=e[o];null!=s[0]&&n[s[0]]||(i&&!s[2]?s[2]=i:i&&(s[2]="(".concat(s[2],") and (").concat(i,")")),t.push(s))}},t}},function(e,t,i){"use strict";function n(e,t){for(var i=[],n={},r=0;r<t.length;r++){var a=t[r],o=a[0],s={id:e+":"+r,css:a[1],media:a[2],sourceMap:a[3]};n[o]?n[o].parts.push(s):i.push(n[o]={id:o,parts:[s]})}return i}i.r(t),i.d(t,"default",(function(){return p}));var r="undefined"!=typeof document;if("undefined"!=typeof DEBUG&&DEBUG&&!r)throw new Error("vue-style-loader cannot be used in a non-browser environment. Use { target: 'node' } in your Webpack config to indicate a server-rendering environment.");var a={},o=r&&(document.head||document.getElementsByTagName("head")[0]),s=null,l=0,c=!1,u=function(){},h=null,f="data-vue-ssr-id",d="undefined"!=typeof navigator&&/msie [6-9]\b/.test(navigator.userAgent.toLowerCase());function p(e,t,i,r){c=i,h=r||{};var o=n(e,t);return m(o),function(t){for(var i=[],r=0;r<o.length;r++){var s=o[r];(l=a[s.id]).refs--,i.push(l)}t?m(o=n(e,t)):o=[];for(r=0;r<i.length;r++){var l;if(0===(l=i[r]).refs){for(var c=0;c<l.parts.length;c++)l.parts[c]();delete a[l.id]}}}}function m(e){for(var t=0;t<e.length;t++){var i=e[t],n=a[i.id];if(n){n.refs++;for(var r=0;r<n.parts.length;r++)n.parts[r](i.parts[r]);for(;r<i.parts.length;r++)n.parts.push(C(i.parts[r]));n.parts.length>i.parts.length&&(n.parts.length=i.parts.length)}else{var o=[];for(r=0;r<i.parts.length;r++)o.push(C(i.parts[r]));a[i.id]={id:i.id,refs:1,parts:o}}}}function g(){var e=document.createElement("style");return e.type="text/css",o.appendChild(e),e}function C(e){var t,i,n=document.querySelector("style["+f+'~="'+e.id+'"]');if(n){if(c)return u;n.parentNode.removeChild(n)}if(d){var r=l++;n=s||(s=g()),t=b.bind(null,n,r,!1),i=b.bind(null,n,r,!0)}else n=g(),t=O.bind(null,n),i=function(){n.parentNode.removeChild(n)};return t(e),function(n){if(n){if(n.css===e.css&&n.media===e.media&&n.sourceMap===e.sourceMap)return;t(e=n)}else i()}}var v,y=(v=[],function(e,t){return v[e]=t,v.filter(Boolean).join("\n")});function b(e,t,i,n){var r=i?"":n.css;if(e.styleSheet)e.styleSheet.cssText=y(t,r);else{var a=document.createTextNode(r),o=e.childNodes;o[t]&&e.removeChild(o[t]),o.length?e.insertBefore(a,o[t]):e.appendChild(a)}}function O(e,t){var i=t.css,n=t.media,r=t.sourceMap;if(n&&e.setAttribute("media",n),h.ssrId&&e.setAttribute(f,t.id),r&&(i+="\n/*# sourceURL="+r.sources[0]+" */",i+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(r))))+" */"),e.styleSheet)e.styleSheet.cssText=i;else{for(;e.firstChild;)e.removeChild(e.firstChild);e.appendChild(document.createTextNode(i))}}}]);
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "/js/";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = "./apps/files_trashbin/src/files_trashbin.js");
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./apps/files_trashbin/src/app.js":
+/*!****************************************!*\
+  !*** ./apps/files_trashbin/src/app.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/**
+ * Copyright (c) 2014
+ *
+ * This file is licensed under the Affero General Public License version 3
+ * or later.
+ *
+ * See the COPYING-README file.
+ *
+ */
+
+/**
+ * @namespace OCA.Trashbin
+ */
+OCA.Trashbin = {};
+/**
+ * @namespace OCA.Trashbin.App
+ */
+
+OCA.Trashbin.App = {
+  _initialized: false,
+
+  /** @type {OC.Files.Client} */
+  client: null,
+  initialize: function initialize($el) {
+    if (this._initialized) {
+      return;
+    }
+
+    this._initialized = true;
+    this.client = new OC.Files.Client({
+      host: OC.getHost(),
+      port: OC.getPort(),
+      root: OC.linkToRemoteBase('dav') + '/trashbin/' + OC.getCurrentUser().uid,
+      useHTTPS: OC.getProtocol() === 'https'
+    });
+    var urlParams = OC.Util.History.parseUrlQuery();
+    this.fileList = new OCA.Trashbin.FileList($('#app-content-trashbin'), {
+      fileActions: this._createFileActions(),
+      detailsViewEnabled: false,
+      scrollTo: urlParams.scrollto,
+      config: OCA.Files.App.getFilesConfig(),
+      multiSelectMenu: [{
+        name: 'restore',
+        displayName: t('files_trashbin', 'Restore'),
+        iconClass: 'icon-history'
+      }, {
+        name: 'delete',
+        displayName: t('files_trashbin', 'Delete permanently'),
+        iconClass: 'icon-delete'
+      }],
+      client: this.client,
+      // The file list is created when a "show" event is handled, so
+      // it should be marked as "shown" like it would have been done
+      // if handling the event with the file list already created.
+      shown: true
+    });
+  },
+  _createFileActions: function _createFileActions() {
+    var client = this.client;
+    var fileActions = new OCA.Files.FileActions();
+    fileActions.register('dir', 'Open', OC.PERMISSION_READ, '', function (filename, context) {
+      var dir = context.fileList.getCurrentDirectory();
+      context.fileList.changeDirectory(OC.joinPaths(dir, filename));
+    });
+    fileActions.setDefault('dir', 'Open');
+    fileActions.registerAction({
+      name: 'Restore',
+      displayName: t('files_trashbin', 'Restore'),
+      type: OCA.Files.FileActions.TYPE_INLINE,
+      mime: 'all',
+      permissions: OC.PERMISSION_READ,
+      iconClass: 'icon-history',
+      actionHandler: function actionHandler(filename, context) {
+        var fileList = context.fileList;
+        var tr = fileList.findFileEl(filename);
+        fileList.showFileBusyState(tr, true);
+        var dir = context.fileList.getCurrentDirectory();
+        client.move(OC.joinPaths('trash', dir, filename), OC.joinPaths('restore', filename), true).then(fileList._removeCallback.bind(fileList, [filename]), function () {
+          fileList.showFileBusyState(tr, false);
+          OC.Notification.show(t('files_trashbin', 'Error while restoring file from trashbin'));
+        });
+      }
+    });
+    fileActions.registerAction({
+      name: 'Delete',
+      displayName: t('files_trashbin', 'Delete permanently'),
+      mime: 'all',
+      permissions: OC.PERMISSION_READ,
+      iconClass: 'icon-delete',
+      render: function render(actionSpec, isDefault, context) {
+        var $actionLink = fileActions._makeActionLink(actionSpec, context);
+
+        $actionLink.attr('original-title', t('files_trashbin', 'Delete permanently'));
+        $actionLink.children('img').attr('alt', t('files_trashbin', 'Delete permanently'));
+        context.$file.find('td:last').append($actionLink);
+        return $actionLink;
+      },
+      actionHandler: function actionHandler(filename, context) {
+        var fileList = context.fileList;
+        $('.tipsy').remove();
+        var tr = fileList.findFileEl(filename);
+        fileList.showFileBusyState(tr, true);
+        var dir = context.fileList.getCurrentDirectory();
+        client.remove(OC.joinPaths('trash', dir, filename)).then(fileList._removeCallback.bind(fileList, [filename]), function () {
+          fileList.showFileBusyState(tr, false);
+          OC.Notification.show(t('files_trashbin', 'Error while removing file from trashbin'));
+        });
+      }
+    });
+    return fileActions;
+  }
+};
+$(document).ready(function () {
+  $('#app-content-trashbin').one('show', function () {
+    var App = OCA.Trashbin.App;
+    App.initialize($('#app-content-trashbin')); // force breadcrumb init
+    // App.fileList.changeDirectory(App.fileList.getCurrentDirectory(), false, true);
+  });
+});
+
+/***/ }),
+
+/***/ "./apps/files_trashbin/src/filelist.js":
+/*!*********************************************!*\
+  !*** ./apps/files_trashbin/src/filelist.js ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/* eslint-disable */
+
+/*
+ * Copyright (c) 2014
+ *
+ * This file is licensed under the Affero General Public License version 3
+ * or later.
+ *
+ * See the COPYING-README file.
+ *
+ */
+(function () {
+  var DELETED_REGEXP = new RegExp(/^(.+)\.d[0-9]+$/);
+  var FILENAME_PROP = '{http://nextcloud.org/ns}trashbin-filename';
+  var DELETION_TIME_PROP = '{http://nextcloud.org/ns}trashbin-deletion-time';
+  var TRASHBIN_ORIGINAL_LOCATION = '{http://nextcloud.org/ns}trashbin-original-location';
+  var TRASHBIN_TITLE = '{http://nextcloud.org/ns}trashbin-title';
+  /**
+   * Convert a file name in the format filename.d12345 to the real file name.
+   * This will use basename.
+   * The name will not be changed if it has no ".d12345" suffix.
+   * @param {String} name file name
+   * @returns {String} converted file name
+   */
+
+  function getDeletedFileName(name) {
+    name = OC.basename(name);
+    var match = DELETED_REGEXP.exec(name);
+
+    if (match && match.length > 1) {
+      name = match[1];
+    }
+
+    return name;
+  }
+  /**
+   * @class OCA.Trashbin.FileList
+   * @augments OCA.Files.FileList
+   * @classdesc List of deleted files
+   *
+   * @param $el container element with existing markup for the #controls
+   * and a table
+   * @param [options] map of options
+   */
+
+
+  var FileList = function FileList($el, options) {
+    this.client = options.client;
+    this.initialize($el, options);
+  };
+
+  FileList.prototype = _.extend({}, OCA.Files.FileList.prototype,
+  /** @lends OCA.Trashbin.FileList.prototype */
+  {
+    id: 'trashbin',
+    appName: t('files_trashbin', 'Deleted files'),
+
+    /** @type {OC.Files.Client} */
+    client: null,
+
+    /**
+     * @private
+     */
+    initialize: function initialize() {
+      this.client.addFileInfoParser(function (response, data) {
+        var props = response.propStat[0].properties;
+        var path = props[TRASHBIN_ORIGINAL_LOCATION];
+        var title = props[TRASHBIN_TITLE];
+        return {
+          displayName: props[FILENAME_PROP],
+          mtime: parseInt(props[DELETION_TIME_PROP], 10) * 1000,
+          hasPreview: true,
+          path: path,
+          extraData: title
+        };
+      });
+      var result = OCA.Files.FileList.prototype.initialize.apply(this, arguments);
+      this.$el.find('.undelete').click('click', _.bind(this._onClickRestoreSelected, this));
+      this.setSort('mtime', 'desc');
+      /**
+       * Override crumb making to add "Deleted Files" entry
+       * and convert files with ".d" extensions to a more
+       * user friendly name.
+       */
+
+      this.breadcrumb._makeCrumbs = function () {
+        var parts = OCA.Files.BreadCrumb.prototype._makeCrumbs.apply(this, [].concat(Array.prototype.slice.call(arguments), ['icon-delete no-hover']));
+
+        for (var i = 1; i < parts.length; i++) {
+          parts[i].name = getDeletedFileName(parts[i].name);
+        }
+
+        return parts;
+      };
+
+      OC.Plugins.attach('OCA.Trashbin.FileList', this);
+      return result;
+    },
+
+    /**
+    * Override to only return read permissions
+    */
+    getDirectoryPermissions: function getDirectoryPermissions() {
+      return OC.PERMISSION_READ | OC.PERMISSION_DELETE;
+    },
+    _setCurrentDir: function _setCurrentDir(targetDir) {
+      OCA.Files.FileList.prototype._setCurrentDir.apply(this, arguments);
+
+      var baseDir = OC.basename(targetDir);
+
+      if (baseDir !== '') {
+        this.setPageTitle(getDeletedFileName(baseDir));
+      }
+    },
+    _createRow: function _createRow() {
+      // FIXME: MEGAHACK until we find a better solution
+      var tr = OCA.Files.FileList.prototype._createRow.apply(this, arguments);
+
+      tr.find('td.filesize').remove();
+      return tr;
+    },
+    getAjaxUrl: function getAjaxUrl(action, params) {
+      var q = '';
+
+      if (params) {
+        q = '?' + OC.buildQueryString(params);
+      }
+
+      return OC.filePath('files_trashbin', 'ajax', action + '.php') + q;
+    },
+    setupUploadEvents: function setupUploadEvents() {// override and do nothing
+    },
+    linkTo: function linkTo(dir) {
+      return OC.linkTo('files', 'index.php') + '?view=trashbin&dir=' + encodeURIComponent(dir).replace(/%2F/g, '/');
+    },
+    elementToFile: function elementToFile($el) {
+      var fileInfo = OCA.Files.FileList.prototype.elementToFile($el);
+
+      if (this.getCurrentDirectory() === '/') {
+        fileInfo.displayName = getDeletedFileName(fileInfo.name);
+      } // no size available
+
+
+      delete fileInfo.size;
+      return fileInfo;
+    },
+    updateEmptyContent: function updateEmptyContent() {
+      var exists = this.$fileList.find('tr:first').exists();
+      this.$el.find('#emptycontent').toggleClass('hidden', exists);
+      this.$el.find('#filestable th').toggleClass('hidden', !exists);
+    },
+    _removeCallback: function _removeCallback(files) {
+      var $el;
+
+      for (var i = 0; i < files.length; i++) {
+        $el = this.remove(OC.basename(files[i]), {
+          updateSummary: false
+        });
+        this.fileSummary.remove({
+          type: $el.attr('data-type'),
+          size: $el.attr('data-size')
+        });
+      }
+
+      this.fileSummary.update();
+      this.updateEmptyContent();
+    },
+    _onClickRestoreSelected: function _onClickRestoreSelected(event) {
+      event.preventDefault();
+      var self = this;
+
+      var files = _.pluck(this.getSelectedFiles(), 'name');
+
+      for (var i = 0; i < files.length; i++) {
+        var tr = this.findFileEl(files[i]);
+        this.showFileBusyState(tr, true);
+      }
+
+      this.fileMultiSelectMenu.toggleLoading('restore', true);
+      var restorePromises = files.map(function (file) {
+        return self.client.move(OC.joinPaths('trash', self.getCurrentDirectory(), file), OC.joinPaths('restore', file), true).then(function () {
+          self._removeCallback([file]);
+        });
+      });
+      return Promise.all(restorePromises).then(function () {
+        self.fileMultiSelectMenu.toggleLoading('restore', false);
+      }, function () {
+        OC.Notification.show(t('files_trashbin', 'Error while restoring files from trashbin'));
+      });
+    },
+    _onClickDeleteSelected: function _onClickDeleteSelected(event) {
+      event.preventDefault();
+      var self = this;
+      var allFiles = this.$el.find('.select-all').is(':checked');
+
+      var files = _.pluck(this.getSelectedFiles(), 'name');
+
+      for (var i = 0; i < files.length; i++) {
+        var tr = this.findFileEl(files[i]);
+        this.showFileBusyState(tr, true);
+      }
+
+      if (allFiles) {
+        return this.client.remove(OC.joinPaths('trash', this.getCurrentDirectory())).then(function () {
+          self.hideMask();
+          self.setFiles([]);
+        }, function () {
+          OC.Notification.show(t('files_trashbin', 'Error while emptying trashbin'));
+        });
+      } else {
+        this.fileMultiSelectMenu.toggleLoading('delete', true);
+        var deletePromises = files.map(function (file) {
+          return self.client.remove(OC.joinPaths('trash', self.getCurrentDirectory(), file)).then(function () {
+            self._removeCallback([file]);
+          });
+        });
+        return Promise.all(deletePromises).then(function () {
+          self.fileMultiSelectMenu.toggleLoading('delete', false);
+        }, function () {
+          OC.Notification.show(t('files_trashbin', 'Error while removing files from trashbin'));
+        });
+      }
+    },
+    _onClickFile: function _onClickFile(event) {
+      var mime = $(this).parent().parent().data('mime');
+
+      if (mime !== 'httpd/unix-directory') {
+        event.preventDefault();
+      }
+
+      return OCA.Files.FileList.prototype._onClickFile.apply(this, arguments);
+    },
+    generatePreviewUrl: function generatePreviewUrl(urlSpec) {
+      return OC.generateUrl('/apps/files_trashbin/preview?') + $.param(urlSpec);
+    },
+    getDownloadUrl: function getDownloadUrl() {
+      // no downloads
+      return '#';
+    },
+    updateStorageStatistics: function updateStorageStatistics() {// no op because the trashbin doesn't have
+      // storage info like free space / used space
+    },
+    isSelectedDeletable: function isSelectedDeletable() {
+      return true;
+    },
+
+    /**
+    * Returns list of webdav properties to request
+    */
+    _getWebdavProperties: function _getWebdavProperties() {
+      return [FILENAME_PROP, DELETION_TIME_PROP, TRASHBIN_ORIGINAL_LOCATION, TRASHBIN_TITLE].concat(this.filesClient.getPropfindProperties());
+    },
+
+    /**
+    * Reloads the file list using ajax call
+    *
+    * @returns ajax call object
+    */
+    reload: function reload() {
+      this._selectedFiles = {};
+
+      this._selectionSummary.clear();
+
+      this.$el.find('.select-all').prop('checked', false);
+      this.showMask();
+
+      if (this._reloadCall) {
+        this._reloadCall.abort();
+      }
+
+      this._reloadCall = this.client.getFolderContents('trash/' + this.getCurrentDirectory(), {
+        includeParent: false,
+        properties: this._getWebdavProperties()
+      });
+      var callBack = this.reloadCallback.bind(this);
+      return this._reloadCall.then(callBack, callBack);
+    },
+    reloadCallback: function reloadCallback(status, result) {
+      delete this._reloadCall;
+      this.hideMask();
+
+      if (status === 401) {
+        return false;
+      } // Firewall Blocked request?
+
+
+      if (status === 403) {
+        // Go home
+        this.changeDirectory('/');
+        OC.Notification.show(t('files', 'This operation is forbidden'));
+        return false;
+      } // Did share service die or something else fail?
+
+
+      if (status === 500) {
+        // Go home
+        this.changeDirectory('/');
+        OC.Notification.show(t('files', 'This directory is unavailable, please check the logs or contact the administrator'));
+        return false;
+      }
+
+      if (status === 404) {
+        // go back home
+        this.changeDirectory('/');
+        return false;
+      } // aborted ?
+
+
+      if (status === 0) {
+        return true;
+      }
+
+      this.setFiles(result);
+      return true;
+    }
+  });
+  OCA.Trashbin.FileList = FileList;
+})();
+
+/***/ }),
+
+/***/ "./apps/files_trashbin/src/files_trashbin.js":
+/*!***************************************************!*\
+  !*** ./apps/files_trashbin/src/files_trashbin.js ***!
+  \***************************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./app */ "./apps/files_trashbin/src/app.js");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_app__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _filelist__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./filelist */ "./apps/files_trashbin/src/filelist.js");
+/* harmony import */ var _filelist__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_filelist__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _trash_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./trash.scss */ "./apps/files_trashbin/src/trash.scss");
+/* harmony import */ var _trash_scss__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_trash_scss__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+window.OCA.Trashbin = OCA.Trashbin;
+
+/***/ }),
+
+/***/ "./apps/files_trashbin/src/trash.scss":
+/*!********************************************!*\
+  !*** ./apps/files_trashbin/src/trash.scss ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(/*! !../../../node_modules/css-loader/dist/cjs.js!../../../node_modules/sass-loader/dist/cjs.js!./trash.scss */ "./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./apps/files_trashbin/src/trash.scss");
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(/*! ../../../node_modules/vue-style-loader/lib/addStylesClient.js */ "./node_modules/vue-style-loader/lib/addStylesClient.js").default
+var update = add("e1044e6c", content, false, {});
+// Hot Module Replacement
+if(false) {}
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./apps/files_trashbin/src/trash.scss":
+/*!*************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./apps/files_trashbin/src/trash.scss ***!
+  \*************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js")(false);
+// Module
+exports.push([module.i, "/*\n * Copyright (c) 2014\n *\n * This file is licensed under the Affero General Public License version 3\n * or later.\n *\n * See the COPYING-README file.\n *\n */\n#app-content-trashbin tbody tr[data-type=\"file\"] td a.name,\n#app-content-trashbin tbody tr[data-type=\"file\"] td a.name span.nametext,\n#app-content-trashbin tbody tr[data-type=\"file\"] td a.name span.nametext span {\n  cursor: default; }\n\n#app-content-trashbin .summary :last-child {\n  padding: 0; }\n\n#app-content-trashbin #filestable .summary .filesize {\n  display: none; }\n", ""]);
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/runtime/api.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/css-loader/dist/runtime/api.js ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/*
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+// eslint-disable-next-line func-names
+module.exports = function (useSourceMap) {
+  var list = []; // return the list of modules as css string
+
+  list.toString = function toString() {
+    return this.map(function (item) {
+      var content = cssWithMappingToString(item, useSourceMap);
+
+      if (item[2]) {
+        return "@media ".concat(item[2], "{").concat(content, "}");
+      }
+
+      return content;
+    }).join('');
+  }; // import a list of modules into the list
+  // eslint-disable-next-line func-names
+
+
+  list.i = function (modules, mediaQuery) {
+    if (typeof modules === 'string') {
+      // eslint-disable-next-line no-param-reassign
+      modules = [[null, modules, '']];
+    }
+
+    var alreadyImportedModules = {};
+
+    for (var i = 0; i < this.length; i++) {
+      // eslint-disable-next-line prefer-destructuring
+      var id = this[i][0];
+
+      if (id != null) {
+        alreadyImportedModules[id] = true;
+      }
+    }
+
+    for (var _i = 0; _i < modules.length; _i++) {
+      var item = modules[_i]; // skip already imported module
+      // this implementation is not 100% perfect for weird media query combinations
+      // when a module is imported multiple times with different media queries.
+      // I hope this will never occur (Hey this way we have smaller bundles)
+
+      if (item[0] == null || !alreadyImportedModules[item[0]]) {
+        if (mediaQuery && !item[2]) {
+          item[2] = mediaQuery;
+        } else if (mediaQuery) {
+          item[2] = "(".concat(item[2], ") and (").concat(mediaQuery, ")");
+        }
+
+        list.push(item);
+      }
+    }
+  };
+
+  return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+  var content = item[1] || ''; // eslint-disable-next-line prefer-destructuring
+
+  var cssMapping = item[3];
+
+  if (!cssMapping) {
+    return content;
+  }
+
+  if (useSourceMap && typeof btoa === 'function') {
+    var sourceMapping = toComment(cssMapping);
+    var sourceURLs = cssMapping.sources.map(function (source) {
+      return "/*# sourceURL=".concat(cssMapping.sourceRoot).concat(source, " */");
+    });
+    return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+  }
+
+  return [content].join('\n');
+} // Adapted from convert-source-map (MIT)
+
+
+function toComment(sourceMap) {
+  // eslint-disable-next-line no-undef
+  var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+  var data = "sourceMappingURL=data:application/json;charset=utf-8;base64,".concat(base64);
+  return "/*# ".concat(data, " */");
+}
+
+/***/ }),
+
+/***/ "./node_modules/vue-style-loader/lib/addStylesClient.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/vue-style-loader/lib/addStylesClient.js ***!
+  \**************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return addStylesClient; });
+/* harmony import */ var _listToStyles__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./listToStyles */ "./node_modules/vue-style-loader/lib/listToStyles.js");
+/*
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
+  Modified by Evan You @yyx990803
+*/
+
+
+
+var hasDocument = typeof document !== 'undefined'
+
+if (typeof DEBUG !== 'undefined' && DEBUG) {
+  if (!hasDocument) {
+    throw new Error(
+    'vue-style-loader cannot be used in a non-browser environment. ' +
+    "Use { target: 'node' } in your Webpack config to indicate a server-rendering environment."
+  ) }
+}
+
+/*
+type StyleObject = {
+  id: number;
+  parts: Array<StyleObjectPart>
+}
+
+type StyleObjectPart = {
+  css: string;
+  media: string;
+  sourceMap: ?string
+}
+*/
+
+var stylesInDom = {/*
+  [id: number]: {
+    id: number,
+    refs: number,
+    parts: Array<(obj?: StyleObjectPart) => void>
+  }
+*/}
+
+var head = hasDocument && (document.head || document.getElementsByTagName('head')[0])
+var singletonElement = null
+var singletonCounter = 0
+var isProduction = false
+var noop = function () {}
+var options = null
+var ssrIdKey = 'data-vue-ssr-id'
+
+// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+// tags it will allow on a page
+var isOldIE = typeof navigator !== 'undefined' && /msie [6-9]\b/.test(navigator.userAgent.toLowerCase())
+
+function addStylesClient (parentId, list, _isProduction, _options) {
+  isProduction = _isProduction
+
+  options = _options || {}
+
+  var styles = Object(_listToStyles__WEBPACK_IMPORTED_MODULE_0__["default"])(parentId, list)
+  addStylesToDom(styles)
+
+  return function update (newList) {
+    var mayRemove = []
+    for (var i = 0; i < styles.length; i++) {
+      var item = styles[i]
+      var domStyle = stylesInDom[item.id]
+      domStyle.refs--
+      mayRemove.push(domStyle)
+    }
+    if (newList) {
+      styles = Object(_listToStyles__WEBPACK_IMPORTED_MODULE_0__["default"])(parentId, newList)
+      addStylesToDom(styles)
+    } else {
+      styles = []
+    }
+    for (var i = 0; i < mayRemove.length; i++) {
+      var domStyle = mayRemove[i]
+      if (domStyle.refs === 0) {
+        for (var j = 0; j < domStyle.parts.length; j++) {
+          domStyle.parts[j]()
+        }
+        delete stylesInDom[domStyle.id]
+      }
+    }
+  }
+}
+
+function addStylesToDom (styles /* Array<StyleObject> */) {
+  for (var i = 0; i < styles.length; i++) {
+    var item = styles[i]
+    var domStyle = stylesInDom[item.id]
+    if (domStyle) {
+      domStyle.refs++
+      for (var j = 0; j < domStyle.parts.length; j++) {
+        domStyle.parts[j](item.parts[j])
+      }
+      for (; j < item.parts.length; j++) {
+        domStyle.parts.push(addStyle(item.parts[j]))
+      }
+      if (domStyle.parts.length > item.parts.length) {
+        domStyle.parts.length = item.parts.length
+      }
+    } else {
+      var parts = []
+      for (var j = 0; j < item.parts.length; j++) {
+        parts.push(addStyle(item.parts[j]))
+      }
+      stylesInDom[item.id] = { id: item.id, refs: 1, parts: parts }
+    }
+  }
+}
+
+function createStyleElement () {
+  var styleElement = document.createElement('style')
+  styleElement.type = 'text/css'
+  head.appendChild(styleElement)
+  return styleElement
+}
+
+function addStyle (obj /* StyleObjectPart */) {
+  var update, remove
+  var styleElement = document.querySelector('style[' + ssrIdKey + '~="' + obj.id + '"]')
+
+  if (styleElement) {
+    if (isProduction) {
+      // has SSR styles and in production mode.
+      // simply do nothing.
+      return noop
+    } else {
+      // has SSR styles but in dev mode.
+      // for some reason Chrome can't handle source map in server-rendered
+      // style tags - source maps in <style> only works if the style tag is
+      // created and inserted dynamically. So we remove the server rendered
+      // styles and inject new ones.
+      styleElement.parentNode.removeChild(styleElement)
+    }
+  }
+
+  if (isOldIE) {
+    // use singleton mode for IE9.
+    var styleIndex = singletonCounter++
+    styleElement = singletonElement || (singletonElement = createStyleElement())
+    update = applyToSingletonTag.bind(null, styleElement, styleIndex, false)
+    remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true)
+  } else {
+    // use multi-style-tag mode in all other cases
+    styleElement = createStyleElement()
+    update = applyToTag.bind(null, styleElement)
+    remove = function () {
+      styleElement.parentNode.removeChild(styleElement)
+    }
+  }
+
+  update(obj)
+
+  return function updateStyle (newObj /* StyleObjectPart */) {
+    if (newObj) {
+      if (newObj.css === obj.css &&
+          newObj.media === obj.media &&
+          newObj.sourceMap === obj.sourceMap) {
+        return
+      }
+      update(obj = newObj)
+    } else {
+      remove()
+    }
+  }
+}
+
+var replaceText = (function () {
+  var textStore = []
+
+  return function (index, replacement) {
+    textStore[index] = replacement
+    return textStore.filter(Boolean).join('\n')
+  }
+})()
+
+function applyToSingletonTag (styleElement, index, remove, obj) {
+  var css = remove ? '' : obj.css
+
+  if (styleElement.styleSheet) {
+    styleElement.styleSheet.cssText = replaceText(index, css)
+  } else {
+    var cssNode = document.createTextNode(css)
+    var childNodes = styleElement.childNodes
+    if (childNodes[index]) styleElement.removeChild(childNodes[index])
+    if (childNodes.length) {
+      styleElement.insertBefore(cssNode, childNodes[index])
+    } else {
+      styleElement.appendChild(cssNode)
+    }
+  }
+}
+
+function applyToTag (styleElement, obj) {
+  var css = obj.css
+  var media = obj.media
+  var sourceMap = obj.sourceMap
+
+  if (media) {
+    styleElement.setAttribute('media', media)
+  }
+  if (options.ssrId) {
+    styleElement.setAttribute(ssrIdKey, obj.id)
+  }
+
+  if (sourceMap) {
+    // https://developer.chrome.com/devtools/docs/javascript-debugging
+    // this makes source maps inside style tags work properly in Chrome
+    css += '\n/*# sourceURL=' + sourceMap.sources[0] + ' */'
+    // http://stackoverflow.com/a/26603875
+    css += '\n/*# sourceMappingURL=data:application/json;base64,' + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + ' */'
+  }
+
+  if (styleElement.styleSheet) {
+    styleElement.styleSheet.cssText = css
+  } else {
+    while (styleElement.firstChild) {
+      styleElement.removeChild(styleElement.firstChild)
+    }
+    styleElement.appendChild(document.createTextNode(css))
+  }
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-style-loader/lib/listToStyles.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/vue-style-loader/lib/listToStyles.js ***!
+  \***********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return listToStyles; });
+/**
+ * Translates the list format produced by css-loader into something
+ * easier to manipulate.
+ */
+function listToStyles (parentId, list) {
+  var styles = []
+  var newStyles = {}
+  for (var i = 0; i < list.length; i++) {
+    var item = list[i]
+    var id = item[0]
+    var css = item[1]
+    var media = item[2]
+    var sourceMap = item[3]
+    var part = {
+      id: parentId + ':' + i,
+      css: css,
+      media: media,
+      sourceMap: sourceMap
+    }
+    if (!newStyles[id]) {
+      styles.push(newStyles[id] = { id: id, parts: [part] })
+    } else {
+      newStyles[id].parts.push(part)
+    }
+  }
+  return styles
+}
+
+
+/***/ })
+
+/******/ });
 //# sourceMappingURL=files_trashbin.js.map
