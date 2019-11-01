@@ -24,7 +24,7 @@
 	<div id="app-content-inner">
 		<div id="apps-list" class="apps-list" :class="{installed: (useBundleView || useListView), store: useAppStoreView}">
 			<template v-if="useListView">
-				<div class="counter">
+				<div v-if="showUpdateAll" class="counter">
 					{{ counter }} {{ t('settings', 'apps have an update available') }}
 				</div>
 				<div class ="btn-primary">
