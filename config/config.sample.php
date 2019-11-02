@@ -1716,4 +1716,12 @@ $CONFIG = array(
  */
 
 'login_form_autocomplete' => true,
+
+/**
+ * By default we send Clear-Site-Data header on logout.
+ * For some reason clearing the site data takes a while in Chrome.
+ *
+ * Set this property to "false" to not send clear-site-data header
+ */
+'clear_site_data' => true,
 );

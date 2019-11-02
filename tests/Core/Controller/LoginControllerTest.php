@@ -131,6 +131,11 @@ class LoginControllerTest extends TestCase {
 		$this->config
 			->expects($this->never())
 			->method('deleteUserValue');
+		$this->config
+			->expects($this->once())
+			->method('getSystemValueBool')
+			->with('clear_site_data', true)
+			->willReturn(true);
 		$this->urlGenerator
 			->expects($this->once())
 			->method('linkToRouteAbsolute')
@@ -139,6 +144,27 @@ class LoginControllerTest extends TestCase {
 
 		$expected = new RedirectResponse('/login');
 		$expected->addHeader('Clear-Site-Data', '"cache", "storage"');
+		$this->assertEquals($expected, $this->loginController->logout());
+	}
+
+	public function testLogoutNoClearSiteData() {
+		$this->request
+			->expects($this->once())
+			->method('getCookie')
+			->with('nc_token')
+			->willReturn(null);
+		$this->config
+			->expects($this->once())
+			->method('getSystemValueBool')
+			->with('clear_site_data', true)
+			->willReturn(false);
+		$this->urlGenerator
+			->expects($this->once())
+			->method('linkToRouteAbsolute')
+			->with('core.login.showLoginForm')
+			->willReturn('/login');
+
+		$expected = new RedirectResponse('/login');
 		$this->assertEquals($expected, $this->loginController->logout());
 	}
 
@@ -161,6 +187,11 @@ class LoginControllerTest extends TestCase {
 			->expects($this->once())
 			->method('deleteUserValue')
 			->with('JohnDoe', 'login_token', 'MyLoginToken');
+		$this->config
+			->expects($this->once())
+			->method('getSystemValueBool')
+			->with('clear_site_data', true)
+			->willReturn(true);
 		$this->urlGenerator
 			->expects($this->once())
 			->method('linkToRouteAbsolute')
