@@ -2,8 +2,10 @@
 /* eslint-disable */
 /*
  * @copyright 2019 Christoph Wurst <christoph@winzerhof-wurst.at>
+ * @copyright Copyright (c) 2019 Gary Kim <gary@garykim.dev>
  *
  * @author 2019 Christoph Wurst <christoph@winzerhof-wurst.at>
+ * @author Gary Kim <gary@garykim.dev>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -116,9 +118,10 @@ const Dialogs = {
 	 * @param {boolean} [modal] make the dialog modal
 	 * @param {string} name name of the input field
 	 * @param {boolean} password whether the input should be a password input
+	 * @param {{confirm: String, cancel: String}} [buttons] text in buttons
 	 * @returns {Promise}
 	 */
-	prompt: function(text, title, callback, modal, name, password) {
+	prompt: function(text, title, callback, modal, name, password, buttons) {
 		return $.when(this._getMessageTemplate()).then(function($tmpl) {
 			var dialogName = 'oc-dialog-' + Dialogs.dialogsCounter + '-content'
 			var dialogId = '#' + dialogName
@@ -145,8 +148,11 @@ const Dialogs = {
 				callback = _.once(callback)
 			}
 
+			if (buttons === undefined) {
+				buttons = {}
+			}
 			var buttonlist = [{
-				text: t('core', 'No'),
+				text: buttons.cancel || t('core', 'No'),
 				click: function() {
 					if (callback !== undefined) {
 						// eslint-disable-next-line standard/no-callback-literal
@@ -155,7 +161,7 @@ const Dialogs = {
 					$(dialogId).ocdialog('close')
 				}
 			}, {
-				text: t('core', 'Yes'),
+				text: buttons.confirm || t('core', 'Yes'),
 				click: function() {
 					if (callback !== undefined) {
 						// eslint-disable-next-line standard/no-callback-literal
