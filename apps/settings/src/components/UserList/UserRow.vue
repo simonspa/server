@@ -436,7 +436,7 @@ export default {
 				t('settings', 'Remote wipe of devices'),
 				{
 					type: OC.dialogs.YES_NO_BUTTONS,
-					confirm: t('settings', 'Wipe {userid}\'s Devices', { userid: userid }),
+					confirm: t('settings', 'Wipe {userid}\'s devices', { userid: userid }),
 					cancel: t('settings', 'Cancel')
 				},
 				(result) => {
@@ -458,7 +458,7 @@ export default {
 			let userid = this.user.id
 			OC.dialogs.confirmCustom(
 				t('settings', 'Fully delete {userid}\'s account including all their personal files, app data, etc.', { userid: userid }),
-				t('settings', 'Account Deletion'),
+				t('settings', 'Account deletion'),
 				{
 					type: OC.dialogs.YES_NO_BUTTONS,
 					confirm: t('settings', 'Delete {userid}\'s account', { userid: userid }),
