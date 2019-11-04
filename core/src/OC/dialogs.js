@@ -95,6 +95,25 @@ const Dialogs = {
 	 * displays confirmation dialog
 	 * @param {string} text content of dialog
 	 * @param {string} title dialog title
+	 * @param {{type: Int, confirm: String, cancel: String}} buttons text content of buttons
+	 * @param {function} callback which will be triggered when user presses OK (true or false would be passed to callback respectively)
+	 * @param {boolean} [modal] make the dialog modal
+	 * @returns {Promise}
+	 */
+	confirmCustom: function(text, title, buttons, callback, modal) {
+		return this.message(
+			text,
+			title,
+			'notice',
+			buttons,
+			callback,
+			modal
+		)
+	},
+	/**
+	 * displays confirmation dialog
+	 * @param {string} text content of dialog
+	 * @param {string} title dialog title
 	 * @param {function} callback which will be triggered when user presses OK (true or false would be passed to callback respectively)
 	 * @param {boolean} [modal] make the dialog modal
 	 * @returns {Promise}
@@ -118,10 +137,9 @@ const Dialogs = {
 	 * @param {boolean} [modal] make the dialog modal
 	 * @param {string} name name of the input field
 	 * @param {boolean} password whether the input should be a password input
-	 * @param {{confirm: String, cancel: String}} [buttons] text in buttons
 	 * @returns {Promise}
 	 */
-	prompt: function(text, title, callback, modal, name, password, buttons) {
+	prompt: function(text, title, callback, modal, name, password) {
 		return $.when(this._getMessageTemplate()).then(function($tmpl) {
 			var dialogName = 'oc-dialog-' + Dialogs.dialogsCounter + '-content'
 			var dialogId = '#' + dialogName
@@ -148,11 +166,8 @@ const Dialogs = {
 				callback = _.once(callback)
 			}
 
-			if (buttons === undefined) {
-				buttons = {}
-			}
 			var buttonlist = [{
-				text: buttons.cancel || t('core', 'No'),
+				text: t('core', 'No'),
 				click: function() {
 					if (callback !== undefined) {
 						// eslint-disable-next-line standard/no-callback-literal
@@ -161,7 +176,7 @@ const Dialogs = {
 					$(dialogId).ocdialog('close')
 				}
 			}, {
-				text: buttons.confirm || t('core', 'Yes'),
+				text: t('core', 'Yes'),
 				click: function() {
 					if (callback !== undefined) {
 						// eslint-disable-next-line standard/no-callback-literal
@@ -540,6 +555,32 @@ const Dialogs = {
 					defaultButton: true
 				}
 				break
+			default:
+				if (typeof(buttons) === 'object') {
+					switch (buttons.type) {
+						case Dialogs.YES_NO_BUTTONS:
+							buttonlist = [{
+								text: buttons.cancel || t('core', 'No'),
+								click: function() {
+									if (callback !== undefined) {
+										callback(false)
+									}
+									$(dialogId).ocdialog('close')
+								}
+							},
+								{
+									text: buttons.confirm || t('core', 'Yes'),
+									click: function() {
+										if (callback !== undefined) {
+											callback(true)
+										}
+										$(dialogId).ocdialog('close')
+									},
+									defaultButton: true
+								}]
+							break
+					}
+				}
 			}
 
 			$(dialogId).ocdialog({

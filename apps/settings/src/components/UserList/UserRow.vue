@@ -431,14 +431,16 @@ export default {
 
 		wipeUserDevices() {
 			let userid = this.user.id
-			OC.dialogs.prompt(
-				t('settings', 'In case of lost device or exiting the organization, this can remotely wipe the Nextcloud data from all devices associated with the account. Only works if the devices are connected to the internet. Type "{userid}" to confirm', { userid: userid }),
+			OC.dialogs.confirmCustom(
+				t('settings', 'In case of lost device or exiting the organization, this can remotely wipe the Nextcloud data from all devices associated with {userid}. Only works if the devices are connected to the internet.', { userid: userid }),
 				t('settings', 'Remote wipe of devices'),
-				(result, input) => {
-					if (!result) {
-						return
-					}
-					if (input === userid) {
+				{
+					type: OC.dialogs.YES_NO_BUTTONS,
+					confirm: t('settings', 'Wipe {userid}\'s Devices', { userid: userid }),
+					cancel: t('settings', 'Cancel')
+				},
+				(result) => {
+					if (result) {
 						this.loading.wipe = true
 						this.loading.all = true
 						this.$store.dispatch('wipeUserDevices', userid)
@@ -446,30 +448,24 @@ export default {
 								this.loading.wipe = false
 								this.loading.all = false
 							})
-					} else {
-						OCP.Toast.error(t('settings', 'Username incorrect'))
 					}
 				},
-				true,
-				t('settings', 'Username'),
-				false,
-				{
-					confirm: t('settings', 'Wipe {userid}\'s Devices', { userid: userid }),
-					cancel: t('settings', 'Cancel')
-				}
+				true
 			)
 		},
 
 		deleteUser() {
 			let userid = this.user.id
-			OC.dialogs.prompt(
-				t('settings', 'Fully delete the user account including all their personal files, app data, etc. Type "{userid}" to confirm.', { userid: userid }),
+			OC.dialogs.confirmCustom(
+				t('settings', 'Fully delete {userid}\'s account including all their personal files, app data, etc.', { userid: userid }),
 				t('settings', 'Account Deletion'),
-				(result, input) => {
-					if (!result) {
-						return
-					}
-					if (input === userid) {
+				{
+					type: OC.dialogs.YES_NO_BUTTONS,
+					confirm: t('settings', 'Delete {userid}\'s account', { userid: userid }),
+					cancel: t('settings', 'Cancel')
+				},
+				(result) => {
+					if (result) {
 						this.loading.delete = true
 						this.loading.all = true
 						return this.$store.dispatch('deleteUser', userid)
@@ -477,17 +473,9 @@ export default {
 								this.loading.delete = false
 								this.loading.all = false
 							})
-					} else {
-						OCP.Toast.error(t('settings', 'Username incorrect'))
 					}
 				},
-				true,
-				t('settings', 'Username'),
-				false,
-				{
-					confirm: t('settings', 'Delete {userid}\'s account', { userid: userid }),
-					cancel: t('settings', 'Cancel')
-				}
+				true
 			)
 		},
 
