@@ -363,7 +363,8 @@
     "Account access" : "Acesso à conta",
     "You are about to grant %1$s access to your %2$s account." : "Você irá conceder acesso %1$s à sua conta %2$s.",
     "Account connected" : "Conta conectada",
-    "Your client should now be connected! You can close this window." : "Seu cliente deve estar conectado agora! Você pode fechar esta janela.",
+    "Your client should now be connected!" : "Seu cliente deve estar conectado agora!",
+    "You can close this window." : "Você pode fechar esta janela.",
     "This share is password-protected" : "Este compartilhamento é protegido por senha",
     "The password is wrong. Try again." : "Senha incorreta. Tente novamente.",
     "Two-factor authentication" : "Autenticação de dois fatores",
@@ -388,12 +389,12 @@
     "The theme %s has been disabled." : "O tema %s foi desativado.",
     "Please make sure that the database, the config folder and the data folder have been backed up before proceeding." : "Por favor, certifique-se de que o banco de dados, a pasta config e a pasta de dados foram copiados antes de prosseguir.",
     "Start update" : "Iniciar atualização",
-    "To avoid timeouts with larger installations, you can instead run the following command from your installation directory:" : "Para evitar tempos de espera com instalações maiores, você pode em vez disso executar o seguinte comando a partir do diretório de instalação:",
+    "To avoid timeouts with larger installations, you can instead run the following command from your installation directory:" : "Para evitar atingir o tempo limite em instalações maiores, você pode em vez disso executar o seguinte comando a partir do diretório de instalação:",
     "Detailed logs" : "Logs detalhados",
     "Update needed" : "Atualização necessária",
     "Please use the command line updater because you have a big instance with more than 50 users." : "Use o atualizador pela linha de comando pois você tem uma grande instalação com mais de 50 usuários",
     "For help, see the  <a target=\"_blank\" rel=\"noreferrer noopener\" href=\"%s\">documentation</a>." : "Precisando de ajuda, leia a <a target=\"_blank\" rel=\"noreferrer noopener\" href=\"%s\">documentação</a>.",
-    "I know that if I continue doing the update via web UI has the risk, that the request runs into a timeout and could cause data loss, but I have a backup and know how to restore my instance in case of a failure." : "Sei que se continuar atualizando pela interface web, há o risco de ocorrer um timeout e perda de dados mas eu tenho um cópia de backup e sei como restaurar meu sistema se isso ocorrer.",
+    "I know that if I continue doing the update via web UI has the risk, that the request runs into a timeout and could cause data loss, but I have a backup and know how to restore my instance in case of a failure." : "Sei que se continuar atualizando pela interfaceweb, há o risco de atingir o tempo limite e ocorrer perda de dados mas eu tenho um cópia de backup e sei como restaurar meu sistema se isso ocorrer.",
     "Upgrade via web on my own risk" : "Atualizar via web por minha conta e risco",
     "Maintenance mode" : "Modo de manutenção",
     "This %s instance is currently in maintenance mode, which may take a while." : "Esta instância %s está em modo de manutenção, o que pode demorar um pouco.",
@@ -412,6 +413,7 @@
     "Especially when using the desktop client for file syncing the use of SQLite is discouraged." : "O uso de SQLite é não recomendável especialmente quando se utiliza o cliente de desktop para sincronização de arquivos.",
     "Wrong password." : "Senha incorreta",
     "New Password" : "Nova senha",
-    "We have send a password reset e-mail to the e-mail address known to us for this account. If you do not receive it within a reasonable amount of time, check your spam/junk folders.<br>If it is not there ask your local administrator." : "Enviamos um e-mail de redefinição de senha para o e-mail desta conta. Se você não recebê-lo dentro de um período de tempo razoável, verifique suas pastas de spam/lixo eletrônico.<br>Se não estiver lá, pergunte ao seu administrador."
+    "We have send a password reset e-mail to the e-mail address known to us for this account. If you do not receive it within a reasonable amount of time, check your spam/junk folders.<br>If it is not there ask your local administrator." : "Enviamos um e-mail de redefinição de senha para o e-mail desta conta. Se você não recebê-lo dentro de um período de tempo razoável, verifique suas pastas de spam/lixo eletrônico.<br>Se não estiver lá, pergunte ao seu administrador.",
+    "Your client should now be connected! You can close this window." : "Seu cliente deve estar conectado agora! Você pode fechar esta janela."
 },"pluralForm" :"nplurals=2; plural=(n > 1);"
 }

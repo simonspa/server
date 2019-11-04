@@ -240,7 +240,7 @@ OC.L10N.register(
     "Pending" : "Чекање",
     "Copy to {folder}" : "Копирај во {folder}",
     "Move to {folder}" : "Премести во {folder}",
-    "Saving..." : "Снимам...",
+    "Saving..." : "Зачувува ...",
     "Authentication required" : "Потребна е автентификација",
     "This action requires you to confirm your password" : "За оваа акција потребно е да ја потврдите вашата лозинка",
     "Confirm" : "Потврди",
@@ -306,6 +306,8 @@ OC.L10N.register(
     "See the documentation" : "Види ја документацијата",
     "This application requires JavaScript for correct operation. Please {linkstart}enable JavaScript{linkend} and reload the page." : "За оваа апликација да работи исправно потребна е JavaScript. Ве молиме {linkstart}овозможете JavaScript{linkend} и превчитајте ја страницата.",
     "Get your own free account" : "Креирајте ваша сметка",
+    "Skip to main content" : "Оди до главната содржина",
+    "Skip to navigation of app" : "Оди до навигацијата на апликацијата",
     "More apps" : "Повеќе апликации",
     "More" : "Повеќе",
     "More apps menu" : "Мени за повеќе апликации",
@@ -323,7 +325,6 @@ OC.L10N.register(
     "Account access" : "Пристап до сметка",
     "You are about to grant %1$s access to your %2$s account." : "Ќе доделите пристап на %1$s во вашата %2$s сметка.",
     "Account connected" : "Сметката е поврзана",
-    "Your client should now be connected! You can close this window." : "Вашиот клиент сега е поврзан! можете да го затворите прозорот.",
     "This share is password-protected" : "Ова споделување е заштитено со лозинка",
     "The password is wrong. Try again." : "Лозинката е погрешна. Обидите се повторно.",
     "Two-factor authentication" : "Двофакторна автентикација",
@@ -336,6 +337,7 @@ OC.L10N.register(
     "Use backup code" : "Искористи резервен код",
     "Cancel log in" : "Откажи го најавувањето",
     "Setup two-factor authentication" : "Постави двофакторна автентикација",
+    "Enhanced security is enforced for your account. Choose which provider to set up:" : "Подобрете ја сигурноста на вашата сметка. Изберете кој провајдер сакате да го поставите:",
     "Error while validating your second factor" : "Грешка при верификација на вториот фактор",
     "Access through untrusted domain" : "Пристап преку недоверлив домен.",
     "Please contact your administrator. If you are an administrator, edit the \"trusted_domains\" setting in config/config.php like the example in config.sample.php." : "Ве молиме контактирајте го администраторот. Доколку вие сте администратор, променете го \"trusted_domains\" подесувањето во config/config.php како во примерот config.sample.php.",
@@ -370,6 +372,7 @@ OC.L10N.register(
     "Especially when using the desktop client for file syncing the use of SQLite is discouraged." : "Особено кога користите клиент на десктоп компјутер за синхронизација на датотеки, SQLite не е препорачливо.",
     "Wrong password." : "Погрешна лозинка.",
     "New Password" : "Нова лозинка",
-    "We have send a password reset e-mail to the e-mail address known to us for this account. If you do not receive it within a reasonable amount of time, check your spam/junk folders.<br>If it is not there ask your local administrator." : "Порака за ресетирање на лозинката е испратена на е-пошта на оваа сметка. Доколку не сте ја добиле, проверете во spam/junk папката.<br>Ако не е таму прашајте го вашиот локален администратор."
+    "We have send a password reset e-mail to the e-mail address known to us for this account. If you do not receive it within a reasonable amount of time, check your spam/junk folders.<br>If it is not there ask your local administrator." : "Порака за ресетирање на лозинката е испратена на е-пошта на оваа сметка. Доколку не сте ја добиле, проверете во spam/junk папката.<br>Ако не е таму прашајте го вашиот локален администратор.",
+    "Your client should now be connected! You can close this window." : "Вашиот клиент сега е поврзан! можете да го затворите прозорот."
 },
 "nplurals=2; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : 1;");

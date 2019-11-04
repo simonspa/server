@@ -363,7 +363,8 @@
     "Account access" : "Dostęp do konta",
     "You are about to grant %1$s access to your %2$s account." : "Zamierzasz udzielić dostępu do swojego konta %2$s dla %1$s.",
     "Account connected" : "Połączono z kontem",
-    "Your client should now be connected! You can close this window." : "Aplikacja kliencka powinna być już połączona! Można zamknąć to okno.",
+    "Your client should now be connected!" : "Twój klient powinien być teraz podłączony!",
+    "You can close this window." : "Możesz zamknąć to okno.",
     "This share is password-protected" : "Współdzielenie jest zabezpieczone hasłem",
     "The password is wrong. Try again." : "Hasło jest nieprawidłowe. Spróbuj ponownie.",
     "Two-factor authentication" : "Uwierzytelnianie dwuskładnikowe",
@@ -404,7 +405,7 @@
     "Dismiss" : "Anuluj",
     "The link to reset your password has been sent to your email. If you do not receive it within a reasonable amount of time, check your spam/junk folders.<br>If it is not there ask your local administrator." : "Link do zresetowania hasła został wysłany na Twój e-mail. Jeśli nie otrzymasz go w rozsądnym czasie, sprawdź katalog ze spamem i kosz.<br>Jeśli nie, skontaktuj się z lokalnym administratorem.",
     "Your files are encrypted. There will be no way to get your data back after your password is reset.<br />If you are not sure what to do, please contact your administrator before you continue. <br />Do you really want to continue?" : "Twoje pliki są szyfrowane. Po zresetowaniu hasła nie będzie możliwości odzyskania danych. <br />Jeśli nie masz pewności, co zrobić, skontaktuj się z administratorem przed kontynuowaniem.<br /> Czy na pewno chcesz kontynuować?",
-    "Sending email …" : "Wysyłanie e-mail…",
+    "Sending email …" : "Wysyłanie e-maila…",
     "{name} below version {version} is installed, for stability and performance reasons it is recommended to update to a newer {name} version." : "Zainstalowana wersja {name} jest starsza niż {version}, ze względu na stabilność i wydajność zaleca się aktualizację do nowszej wersji {name}.",
     "Accessing site insecurely via HTTP. You are strongly adviced to set up your server to require HTTPS instead, as described in the <a href=\"{docUrl}\">security tips ↗</a>." : "Dostęp do tej strony jest za pośrednictwem protokołu HTTP. Zaleca się skonfigurowanie serwera tak, aby wymagał HTTPS, zgodnie z opisem w <a href=\"{docUrl}\">poradach bezpieczeństwa ↗</a>.",
     "SQLite will be used as database." : "SQLite będzie używane jako baza danych.",
@@ -412,6 +413,7 @@
     "Especially when using the desktop client for file syncing the use of SQLite is discouraged." : "Zwłaszcza przy korzystaniu z klienta desktopowego do synchronizacji plików nie zaleca się używania SQLite.",
     "Wrong password." : "Złe hasło.",
     "New Password" : "Nowe hasło",
-    "We have send a password reset e-mail to the e-mail address known to us for this account. If you do not receive it within a reasonable amount of time, check your spam/junk folders.<br>If it is not there ask your local administrator." : "Wysłaliśmy wiadomość dotyczącą resetowania hasła na adres e-mail przypisany dla tego konta. Jeśli nie otrzymasz go w rozsądnym czasie, sprawdź katalog ze spamem i kosz.<br>Jeśli nie, skontaktuj się z lokalnym administratorem."
+    "We have send a password reset e-mail to the e-mail address known to us for this account. If you do not receive it within a reasonable amount of time, check your spam/junk folders.<br>If it is not there ask your local administrator." : "Wysłaliśmy wiadomość dotyczącą resetowania hasła na adres e-mail przypisany dla tego konta. Jeśli nie otrzymasz go w rozsądnym czasie, sprawdź katalog ze spamem i kosz.<br>Jeśli nie, skontaktuj się z lokalnym administratorem.",
+    "Your client should now be connected! You can close this window." : "Aplikacja kliencka powinna być już połączona! Można zamknąć to okno."
 },"pluralForm" :"nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);"
 }

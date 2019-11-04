@@ -214,6 +214,7 @@
     "An internal error occurred." : "Der opstod en intern fejl.",
     "Please try again or contact your administrator." : "Kontakt venligst din administrator.",
     "Username or email" : "Brugernavn eller e-mail",
+    "Username or\temail" : "Brugernavn eller ePostadresse",
     "Log in" : "Log ind",
     "Logging in …" : "Logger ind …",
     "Wrong username or password." : "Forkert brugernavn eller adgangskode",
@@ -225,6 +226,7 @@
     "Back to login" : "Tilbage til log in",
     "New password" : "Ny adgangskode",
     "I know what I'm doing" : "Jeg ved, hvad jeg har gang i",
+    "Resetting password" : "Nulstilling af adgangskode",
     "Forgot password?" : "Glemt adgangskode?",
     "Settings" : "Indstillingér",
     "Could not load your contacts" : "Kunne ikke indlæse kontakter.",
@@ -238,6 +240,9 @@
     "No files in here" : "Ingen filer",
     "New folder" : "Ny mappe",
     "No more subfolders in here" : "Her er ikke flere undermapper",
+    "Name" : "Navn",
+    "Size" : "Størrelse",
+    "Modified" : "Ændret",
     "{newName} already exists" : "{newname} eksisterer allerede",
     "Choose" : "Vælg",
     "Move" : "Flyt",
@@ -267,6 +272,10 @@
     "seconds ago" : "sekunder siden",
     "Connection to server lost" : "Forbindelsen til serveren er tabt",
     "_Problem loading page, reloading in %n second_::_Problem loading page, reloading in %n seconds_" : ["Der opstod et problem med at hente siden, prøver igen om %n sekund","Der opstod et problem med at hente siden, prøver igen om %n sekunder"],
+    "Show details" : "Vis detaljer",
+    "Rename project" : "Omdøb projekt",
+    "Failed to rename the project" : "Kunne ikke omdøbe projektet",
+    "Failed to create a project" : "Kunne ikke oprette projekt",
     "New in" : "Ny i",
     "View changelog" : "Se ændringslog",
     "No action available" : "Ingen funktion tilgængelig",
@@ -339,7 +348,6 @@
     "Account access" : "Konto adgang",
     "You are about to grant %1$s access to your %2$s account." : "Du er ved at tildele %1$s adgang til din %2$s konto.",
     "Account connected" : "Kontoen er tilknyttet",
-    "Your client should now be connected! You can close this window." : "Din klient er nu forbundet. Du kan lukke dette vindue",
     "This share is password-protected" : "Delingen er beskyttet af kodeord",
     "The password is wrong. Try again." : "Passwordet er forkert. Prøv igen.",
     "Two-factor authentication" : "To-faktor autentificering",
@@ -384,6 +392,7 @@
     "Especially when using the desktop client for file syncing the use of SQLite is discouraged." : "Brug af SQLite frarådes især når skrivebordsklienten anvendes til filsynkronisering.",
     "Wrong password." : "Forkert kodeord.",
     "New Password" : "Ny adgangskode",
-    "We have send a password reset e-mail to the e-mail address known to us for this account. If you do not receive it within a reasonable amount of time, check your spam/junk folders.<br>If it is not there ask your local administrator." : "En e-post til at nulstille dit kodeord er blevet sendt til e-postadressen for denne konto. Hvis du ikke modtager den inden for en rimelig tid, så tjek dine spam/junk-mapper.<br> Hvis den ikke er der, så spørg din lokale administrator."
+    "We have send a password reset e-mail to the e-mail address known to us for this account. If you do not receive it within a reasonable amount of time, check your spam/junk folders.<br>If it is not there ask your local administrator." : "En e-post til at nulstille dit kodeord er blevet sendt til e-postadressen for denne konto. Hvis du ikke modtager den inden for en rimelig tid, så tjek dine spam/junk-mapper.<br> Hvis den ikke er der, så spørg din lokale administrator.",
+    "Your client should now be connected! You can close this window." : "Din klient er nu forbundet. Du kan lukke dette vindue"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }
