@@ -581,6 +581,7 @@ const Dialogs = {
 							break
 					}
 				}
+				break
 			}
 
 			$(dialogId).ocdialog({
